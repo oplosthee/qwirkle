@@ -1,4 +1,4 @@
-package qwirkle.game;
+package main.java.qwirkle.game;
 
 import java.util.HashSet;
 import java.util.Random;

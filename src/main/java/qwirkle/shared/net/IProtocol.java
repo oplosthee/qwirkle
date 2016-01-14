@@ -1,4 +1,4 @@
-package qwirkle.shared.net;
+package main.java.qwirkle.shared.net;
 
 /**
  * IProtocol is the interface for the Qwirkle Protocol implementation. This interface
