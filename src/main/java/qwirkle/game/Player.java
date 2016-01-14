@@ -1,8 +1,14 @@
-package main.java.qwirkle.game;
+package qwirkle.game;
 
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * TODO: Finish Javadoc for Player class.
+ *
+ * @author Mathay Kahraman
+ * @author Tom Leemreize
+ */
 public class Player {
 
     private String name;
@@ -11,7 +17,8 @@ public class Player {
 
     /**
      * Constructs a new player, which sets the name, a new hand and sets the score on 0.
-     * @param name
+     *
+     * @param name name for the Player
      */
     public Player(String name) {
         setName(name);
@@ -20,50 +27,62 @@ public class Player {
     }
 
     /**
-     * Puts 1 block on the board and removes the block out of your hand.
-     * @param block
+     * Adds a Block to the Player's hand.
+     *
+     * @param block Block to be added to the Player's hand
      */
-    public void addBlock2(Block block) { //Tom IntelliJ zeurt er over dat het 2 methods zijn met de zelfde naam, fix het.
-        hand.remove(block); //is het remove of add? ik zou denken remove, want je haalt ze uit je hand op het board.
+    public void addBlock(Block block) {
+        hand.add(block);
     }
 
     /**
-     * Puts multiple blocks on the board and removes the blocks out of your hand.
-     * @param blockSet
-     */
-    public void addBlock(HashSet<Block> blockSet) {
-        hand.remove(blockSet); //kan dit zo of moet dit met een loop? Ik denk zelf wel met een loop.
-    }
-
-    /**
-     * Removes a block from the board, which you just putted on the board.
-     * @param block
+     * Removes a Block from the Player's hand.
+     *
+     * @param block Block to be removed from the Player's hand
      */
     public void removeBlock(Block block) {
-        hand.add(block); //hier dus weer dezelfde vraag, hierm oet add denk ik, want je pakt ze van het board.
+        //TODO: Check whether the Block exists in the Player's hand.
+        hand.remove(block);
+    }
+
+    public Set<Block> getHand() {
+        return hand;
     }
 
     /**
      * Sets the name of an player.
-     * @param name
+     *
+     * @param name String to which the Player's name should be set
      */
     public void setName(String name) {
+        //TODO: Check whether a Player's name meets the requirements.
         this.name = name;
     }
 
     /**
-     * Returns the name of the player.
-     * @return the name of the player.
+     * Returns the name of the Player.
+     *
+     * @return the name of the Player
      */
     public String getName() {
         return this.name;
     }
 
     /**
-     * Edits the score with the amount score.
-     * @param score
+     * Adds score the the Player's current score.
+     *
+     * @param score score to be added to the Player's current score
      */
     public void addScore(int score) {
         this.score = this.score + score;
+    }
+
+    /**
+     * Returns the Player's current score.
+     *
+     * @return the score of this Player
+     */
+    public int getScore() {
+        return score;
     }
 }
