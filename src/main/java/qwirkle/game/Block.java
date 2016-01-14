@@ -1,4 +1,4 @@
-package main.java.qwirkle.game;
+package qwirkle.game;
 
 public class Block {
 

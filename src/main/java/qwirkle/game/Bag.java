@@ -1,4 +1,4 @@
-package main.java.qwirkle.game;
+package qwirkle.game;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -12,7 +12,7 @@ import java.util.Random;
 public class Bag {
 
     /**
-     * Amount of duplicates block in a Bag.
+     * Amount of duplicate blocks in a Bag.
      */
     private static final int BLOCK_DUPLICATES_AMOUNT = 3;
 
