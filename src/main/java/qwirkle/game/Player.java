@@ -1,49 +1,38 @@
 package main.java.qwirkle.game;
 
 import java.util.HashSet;
+import java.util.Set;
 
-public abstract class Player extends Bag {
+public class Player {
 
     private String name;
     private int score;
-    private HashSet<Block> blocks;
+    private Set<Block> hand;
 
-    //Constructor van het geheel.
+    //Constructor zet de naam op een nieuwe naam, geeft een nieuwe lege hand mee en zet de score op 0.
     public Player(String name) {
         setName(name);
-        takeRandomBlock(); //weet niet of dat nodig is hierbij.
-        takeRandomBlock(); //misschien moet het niet in player, maar in het begin van het spel ofzo.
-        takeRandomBlock();
-        takeRandomBlock();
-        takeRandomBlock();
-        takeRandomBlock();
+        hand = new HashSet<>();
         score = 0;
     }
 
     //1 block neerleggen.
     public void addBlock2(Block block) { //Tom IntelliJ zeurt er over dat het 2 methods zijn met de zelfde naam, fix het.
-        //ToDo implement this method
+        hand.remove(block); //is het remove of add? ik zou denken remove, want je haalt ze uit je hand op het board.
     }
 
     //Meerdere blokken tegelijkertijd zetten.
     public void addBlock(HashSet<Block> blockSet) {
-        //ToDo implement this method
+        hand.remove(blockSet); //kan dit zo of moet dit met een loop? Ik denk zelf wel met een loop.
     }
 
     //Verwijder een blok die je hebt neergelegd.
     public void removeBlock(Block block) {
-        //ToDo implement this method
-    }
-
-    //Legt een block in de bag en neemt een andere random blok er voor terug uit de bag.
-    public void tradeBlock(Block block) {
-        addBlock(block);
-        takeRandomBlock();
+        hand.add(block); //hier dus weer dezelfde vraag, hierm oet add denk ik, want je pakt ze van het board.
     }
 
     //Geef de speler een naam.
     public void setName(String name) {
-        //ToDo add exceptions
         this.name = name;
     }
 
