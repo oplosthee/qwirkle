@@ -14,6 +14,7 @@ public class Player {
     private String name;
     private int score;
     private Set<Block> hand;
+    private Game game;
 
     /**
      * Constructs a new player, which sets the name, a new hand and sets the score on 0.
@@ -85,4 +86,13 @@ public class Player {
     public int getScore() {
         return score;
     }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
 }
