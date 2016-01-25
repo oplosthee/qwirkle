@@ -1,6 +1,7 @@
 package qwirkle.game;
 
 import java.awt.*;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,15 +18,19 @@ public class Move {
 
     private Player player;
     private Type type;
-    private Set<Point> positions;
-    private Set<Block> blocks;
+    private Set<Block> tradeBlocks;
+    private Map<Point, Block> putBlocks;
 
-
-    public Move(Player player, Type type, Set<Point> positions, Set<Block> blocks) {
+    public Move(Player player, Type type, Set<Block> tradeBlocks) {
         this.player = player;
         this.type = type;
-        this.positions = positions;
-        this.blocks = blocks;
+        this.tradeBlocks = tradeBlocks;
+    }
+
+    public Move(Player player, Type type, Map<Point, Block> putBlocks) {
+        this.player = player;
+        this.type = type;
+        this.putBlocks = putBlocks;
     }
 
     public Type getType() {
@@ -36,12 +41,12 @@ public class Move {
         return player;
     }
 
-    public Set<Point> getPositions() {
-        return positions;
+    public Map<Point, Block> getPutBlocks() {
+        return putBlocks;
     }
 
-    public Set<Block> getBlocks() {
-        return blocks;
+    public Set<Block> getTradeBlocks() {
+        return tradeBlocks;
     }
 
 }

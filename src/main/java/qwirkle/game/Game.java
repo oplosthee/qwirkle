@@ -5,6 +5,7 @@ import qwirkle.game.exception.InvalidMoveException;
 
 import java.awt.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Game {
@@ -31,7 +32,7 @@ public class Game {
     public boolean doMove(Move move) {
         switch(move.getType()) {
             case PUT:
-                return placeBlock(move.getPlayer(), move.getPositions(), move.getBlocks());
+                return placeBlock(move.getPlayer(), move.getPutBlocks());
             case TRADE:
                 //TODO: Implement TRADE Move Type.
                 return true;
@@ -43,9 +44,9 @@ public class Game {
         }
     }
 
-    public boolean placeBlock(Player player, Set<Point> positions, Set<Block> blocks) {
+    public boolean placeBlock(Player player, Map<Point, Block> blocks) {
         try  {
-            board.setBlock(positions, blocks);
+            board.placeBlock(blocks);
 
             //TODO: Add score calculation.
             player.addScore(1000);
@@ -68,6 +69,10 @@ public class Game {
         }
 
         return hand;
+    }
+
+    public Board getBoard() {
+        return board;
     }
 
 }

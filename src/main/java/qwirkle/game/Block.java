@@ -18,6 +18,23 @@ public class Block {
         this.color = color;
     }
 
+    public Shape getShape() {
+        return shape;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public boolean isAllowedNeighbour(Block block) {
+        return block == null || (block.getColor().equals(getColor()) ^ block.getShape().equals(getShape()));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Block && ((Block) obj).getColor() == getColor() && ((Block) obj).getShape() == getShape();
+    }
+
     @Override
     public String toString() {
         return String.format("Shape: %s - Color: %s", shape, color);
