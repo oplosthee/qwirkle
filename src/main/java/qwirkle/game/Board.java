@@ -2,6 +2,7 @@ package qwirkle.game;
 
 import qwirkle.game.exception.InvalidMoveException;
 
+import java.util.List;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -234,6 +235,33 @@ public class Board {
         }
 
         return verticalLine;
+    }
+
+    public int getPoints(Map<Point, Block> blocks) {
+        List<Map<Point, Block>> lines = new ArrayList<>();
+        int score = 0;
+
+        //TODO: Remove this when proper first turn check has been implemented.
+        if (board.size() == 1 && blocks.size() == 1) {
+            return 1;
+        }
+
+        for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
+            Map<Point, Block> verticalLine = getVerticalLine(entry.getKey(), board);
+            Map<Point, Block> horizontalLine = getHorizontalLine(entry.getKey(), board);
+
+            if (verticalLine.size() > 1 && !lines.contains(verticalLine)) {
+                score = score + verticalLine.size();
+                lines.add(verticalLine);
+            }
+
+            if (horizontalLine.size() > 1 && !lines.contains(horizontalLine)) {
+                score = score + horizontalLine.size();
+                lines.add(horizontalLine);
+            }
+        }
+
+        return score;
     }
 
     public boolean isHorizontal(Map<Point, Block> blocks) {

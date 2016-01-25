@@ -1,5 +1,7 @@
 package qwirkle.test;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -116,5 +118,42 @@ public class BoardTest {
 
         board.placeBlock(move);
     }
-    
+
+    @Test
+    public void testGetPoints_line() throws InvalidMoveException {
+
+        // Create three blocks next to each other.
+        Block testBlock0 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
+        Block testBlock1 = new Block(Block.Shape.SQUARE, Block.Color.RED);
+        Block testBlock2 = new Block(Block.Shape.SQUARE, Block.Color.ORANGE);
+
+        Point testPos0 = new Point(0,0);
+        Point testPos1 = new Point(1,0);
+        Point testPos2 = new Point(2,0);
+
+        // Add the blocks to a new move.
+        move.put(testPos0, testBlock0);
+        move.put(testPos1, testBlock1);
+        move.put(testPos2, testBlock2);
+
+        board.placeBlock(move);
+        assertEquals(board.getPoints(move), 3);
+    }
+
+    @Test
+    public void testGetPoints_square() throws InvalidMoveException {
+
+        // Place dummy tiles on Board to use in score calculation.
+        board.setBlock(new Point(0,0), new Block(Block.Shape.CIRCLE, Block.Color.ORANGE));
+        board.setBlock(new Point(1,0), new Block(Block.Shape.CIRCLE, Block.Color.RED));
+        board.setBlock(new Point(1,1), new Block(Block.Shape.DIAMOND, Block.Color.RED));
+
+        Block block1 = new Block(Block.Shape.CIRCLE, Block.Color.RED);
+        Point point1 = new Point(0,1);
+        move.put(point1, block1);
+
+        board.placeBlock(move);
+        assertEquals(board.getPoints(move), 4);
+    }
+
 }
