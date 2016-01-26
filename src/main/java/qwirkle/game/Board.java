@@ -38,10 +38,8 @@ public class Board {
             }
         }
 
-        //TODO: Check for this: http://i.imgur.com/9A1ITqx.png
-
         // Check whether the position of the blocks in the move is allowed.
-        return isLine(blocks) && isAllowedInLine(blocks);
+        return isLine(blocks) && hasNeighbors(blocks) && isAllowedInLine(blocks);
     }
 
     public boolean isAllowedInLine(Map<Point, Block> blocks) {
@@ -54,43 +52,43 @@ public class Board {
             Point point = entry.getKey();
 
             // Check one block to the left.
-            if (!block.isAllowedNeighbour(boardCopy.get(new Point(point.x - 1, point.y)))) {
+            if (!block.isAllowedNeighbor(boardCopy.get(new Point(point.x - 1, point.y)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: One to left ERROR.");
                 return false;
             }
             // Check one block above.
-            if (!block.isAllowedNeighbour(boardCopy.get(new Point(point.x, point.y + 1)))) {
+            if (!block.isAllowedNeighbor(boardCopy.get(new Point(point.x, point.y + 1)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: One to top ERROR.");
                 return false;
             }
             // Check one block to the right.
-            if (!block.isAllowedNeighbour(boardCopy.get(new Point(point.x + 1, point.y)))) {
+            if (!block.isAllowedNeighbor(boardCopy.get(new Point(point.x + 1, point.y)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: One to right ERROR.");
                 return false;
             }
             // Check one block below.
-            if (!block.isAllowedNeighbour(boardCopy.get(new Point(point.x, point.y - 1)))) {
+            if (!block.isAllowedNeighbor(boardCopy.get(new Point(point.x, point.y - 1)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: One to bottom ERROR.");
                 return false;
             }
 
             // Check two blocks to the left.
-            if (boardCopy.get(new Point(point.x - 1, point.y)) != null && !block.isAllowedNeighbour(boardCopy.get(new Point(point.x - 2, point.y)))) {
+            if (boardCopy.get(new Point(point.x - 1, point.y)) != null && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x - 2, point.y)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: Two to left ERROR.");
                 return false;
             }
             // Check two blocks above.
-            if (boardCopy.get(new Point(point.x, point.y + 1)) != null && !block.isAllowedNeighbour(boardCopy.get(new Point(point.x, point.y + 2)))) {
+            if (boardCopy.get(new Point(point.x, point.y + 1)) != null && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x, point.y + 2)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: Two to top ERROR.");
                 return false;
             }
             // Check two blocks to the right.
-            if (boardCopy.get(new Point(point.x + 1, point.y)) != null && !block.isAllowedNeighbour(boardCopy.get(new Point(point.x + 2, point.y)))) {
+            if (boardCopy.get(new Point(point.x + 1, point.y)) != null && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x + 2, point.y)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: Two to right ERROR.");
                 return false;
             }
             // Check two blocks below.
-            if (boardCopy.get(new Point(point.x, point.y - 1)) != null && !block.isAllowedNeighbour(boardCopy.get(new Point(point.x, point.y - 2)))) {
+            if (boardCopy.get(new Point(point.x, point.y - 1)) != null && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x, point.y - 2)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: Two to bottom ERROR.");
                 return false;
             }
@@ -161,6 +159,49 @@ public class Board {
         }
 
         return isLine;
+    }
+
+    public boolean hasNeighbors(Map<Point, Block> blocks) {
+        Map<Point, Block> boardCopy = new HashMap<>(board);
+        boardCopy.putAll(blocks);
+
+        List<Block> neighbors = new ArrayList<>();
+
+        for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
+            // Add the neighbor if it is not in the list already.
+            getNeighbors(entry.getKey(), boardCopy).stream().filter(neighbor -> !neighbors.contains(neighbor)).forEach(neighbors::add);
+        }
+
+        for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
+            neighbors.remove(entry.getValue()); // Remove the move from the neighbors, leaving only the blocks that touch the move.
+        }
+
+        return neighbors.size() != 0;
+    }
+
+    public List<Block> getNeighbors(Point point, Map<Point, Block> boardCopy) {
+        List<Block> neighbors = new ArrayList<>();
+
+        //TODO: Improve Neighbor Block getting.
+        Block blockLeft = boardCopy.get(new Point(point.x - 1, point.y));
+        Block blockUp = boardCopy.get(new Point(point.x, point.y + 1));
+        Block blockRight = boardCopy.get(new Point(point.x + 1, point.y));
+        Block blockDown = boardCopy.get(new Point(point.x, point.y - 1));
+
+        if (blockLeft != null) {
+            neighbors.add(blockLeft);
+        }
+        if (blockUp != null) {
+            neighbors.add(blockUp);
+        }
+        if (blockRight != null) {
+            neighbors.add(blockRight);
+        }
+        if (blockDown != null) {
+            neighbors.add(blockDown);
+        }
+
+        return neighbors;
     }
 
     public Map<Point, Block> getHorizontalLine(Point point, Map<Point, Block> boardCopy) {

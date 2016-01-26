@@ -13,7 +13,7 @@ public class BlockTest {
         Block testBlock0 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
         Block testBlock1 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
 
-        assertFalse(testBlock0.isAllowedNeighbour(testBlock1));
+        assertFalse(testBlock0.isAllowedNeighbor(testBlock1));
     }
 
     @Test
@@ -21,7 +21,7 @@ public class BlockTest {
         Block testBlock0 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
         Block testBlock1 = new Block(Block.Shape.CIRCLE, Block.Color.BLUE);
 
-        assertTrue(testBlock0.isAllowedNeighbour(testBlock1));
+        assertTrue(testBlock0.isAllowedNeighbor(testBlock1));
     }
 
     @Test
@@ -29,7 +29,7 @@ public class BlockTest {
         Block testBlock0 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
         Block testBlock1 = new Block(Block.Shape.SQUARE, Block.Color.RED);
 
-        assertTrue(testBlock0.isAllowedNeighbour(testBlock1));
+        assertTrue(testBlock0.isAllowedNeighbor(testBlock1));
     }
 
     @Test
@@ -37,7 +37,7 @@ public class BlockTest {
         Block testBlock0 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
         Block testBlock1 = new Block(Block.Shape.CIRCLE, Block.Color.RED);
 
-        assertFalse(testBlock0.isAllowedNeighbour(testBlock1));
+        assertFalse(testBlock0.isAllowedNeighbor(testBlock1));
     }
 
 }

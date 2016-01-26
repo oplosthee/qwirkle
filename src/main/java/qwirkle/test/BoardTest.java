@@ -24,7 +24,7 @@ public class BoardTest {
         move = new HashMap<>();
     }
 
-    @Test
+    @Test (expected = InvalidMoveException.class)
     public void testPlaceBlock_singleBlock() throws InvalidMoveException {
 
         // Create three blocks next to each other.
@@ -38,8 +38,30 @@ public class BoardTest {
         board.placeBlock(move);
     }
 
+    @Test (expected = InvalidMoveException.class)
+    public void testPlaceBlock_nonConnectingLine() throws InvalidMoveException {
+
+        // Create three blocks next to each other.
+        Block testBlock0 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
+        Block testBlock1 = new Block(Block.Shape.SQUARE, Block.Color.RED);
+        Block testBlock2 = new Block(Block.Shape.SQUARE, Block.Color.ORANGE);
+
+        Point testPos0 = new Point(0,0);
+        Point testPos1 = new Point(1,0);
+        Point testPos2 = new Point(2,0);
+
+        // Add the blocks to a new move.
+        move.put(testPos0, testBlock0);
+        move.put(testPos1, testBlock1);
+        move.put(testPos2, testBlock2);
+
+        board.placeBlock(move);
+    }
+
     @Test
     public void testPlaceBlock_validMove() throws InvalidMoveException {
+
+        board.setBlock(new Point(-1, 0), new Block(Block.Shape.SQUARE, Block.Color.GREEN));
 
         // Create three blocks next to each other.
         Block testBlock0 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
@@ -122,6 +144,9 @@ public class BoardTest {
     @Test
     public void testGetPoints_line() throws InvalidMoveException {
 
+        // Create a block for the line to attach to.
+        board.setBlock(new Point(-1, 0), new Block(Block.Shape.SQUARE, Block.Color.PURPLE));
+
         // Create three blocks next to each other.
         Block testBlock0 = new Block(Block.Shape.SQUARE, Block.Color.BLUE);
         Block testBlock1 = new Block(Block.Shape.SQUARE, Block.Color.RED);
@@ -137,7 +162,7 @@ public class BoardTest {
         move.put(testPos2, testBlock2);
 
         board.placeBlock(move);
-        assertEquals(board.getPoints(move), 3);
+        assertEquals(board.getPoints(move), 4);
     }
 
     @Test
