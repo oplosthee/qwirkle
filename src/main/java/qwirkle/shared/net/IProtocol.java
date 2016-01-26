@@ -1,4 +1,4 @@
-package main.java.qwirkle.shared.net;
+package qwirkle.shared.net;
 
 /**
  * IProtocol is the interface for the Qwirkle Protocol implementation. This interface
@@ -9,11 +9,43 @@ package main.java.qwirkle.shared.net;
  * <p>Tiles are represented by an integer. There are 6 colors and 6 shapes to be
  * identified, resulting in 36 different combinations. First, we define the colors
  * and shapes as integers from <code>0</code> to <code>5</code>. Using the formula
- * <strong><code>color * 6 + shape</code></strong> we can calculate the integer for the Tile. It does
- * not matter which shape or color is defined by which integer, as long as it is
- * done consistently.</p>
+ * <strong><code>color * 6 + shape</code></strong> we can calculate the integer for
+ * the Tile. It does not matter which shape or color is defined by which integer, as
+ * long as it is done consistently.</p>
+ *
+ * <h3>Definitions</h3>
+ * <dl>
+ *     <dt>Board</dt>
+ *     <dd>A 2-dimensional matrix where tiles can be laid upon. The Board has has coordinates x and y, where (0,0) is the origin.</dd>
+ * </dl>
+ * <dl>
+ *     <dt>Tile</dt>
+ *     <dd>A piece that can be played on the Board. Represented by a combination of a shape and a color.</dd>
+ * </dl>
+ * <dl>
+ *     <dt>Player</dt>
+ *     <dd>One who competes in a game. The player has a hand and a score.</dd>
+ * </dl>
+ * <dl>
+ *     <dt>Hand</dt>
+ *     <dd>Owned by a player, contains up to 6 Tiles.</dd>
+ * </dl>
+ * <dl>
+ *     <dt>Deck</dt>
+ *     <dd>The Deck contains all Tiles which have not been played yet and are not in a Player's Hand.</dd>
+ * </dl>
  *
  * <h3>Changelog</h3>
+ * <dl>
+ *     <dt>0.5</dt>
+ *     <dd>Added {@link qwirkle.shared.net.IProtocol#SERVER_QUEUE}, which the server responds with after a player queues.</dd>
+ * </dl>
+ * <dl>
+ *     <dt>0.4</dt>
+ *     <dd>Improved documentation</dd>
+ *     <dd>Added regex for Name and Lists</dd>
+ *     <dd>Added {@link qwirkle.shared.net.IProtocol.Error#ILLEGAL_STATE}, which is thrown when a client uses a command which is not allowed in that state.</dd>
+ * </dl>
  * <dl>
  *     <dt>0.3</dt>
  *     <dd>Added {@link qwirkle.shared.net.IProtocol#SERVER_PASS}</dd>
@@ -37,6 +69,9 @@ public interface IProtocol {
      */
     String VERSION = "0.2";
 
+    String NAME_REGEX = "^[A-Za-z0-9-_]{2,16}$";
+    String LIST_REGEX = "^\\w+(,\\w+)*$";
+
     /**
      * <p>Enumeration of the features supported by the protocol.</p>
      */
@@ -54,7 +89,7 @@ public interface IProtocol {
         MOVE_TILES_UNOWNED, MOVE_INVALID,
         DECK_EMPTY, TRADE_FIRST_TURN,
         INVALID_CHANNEL,
-        CHALLENGE_SELF, NOT_CHALLENGED
+        CHALLENGE_SELF, ILLEGAL_STATE, NOT_CHALLENGED
     }
 
     /**
@@ -121,7 +156,7 @@ public interface IProtocol {
     /**
      * <p>Sent by the client to trade tiles as a move.</p>
      * <p>The player must own the tiles. <code>{@link qwirkle.shared.net.IProtocol.Error#MOVE_TILES_UNOWNED }</code></p>
-     * <p>The deck contain at least as many tiles as traded. <code>{@link qwirkle.shared.net.IProtocol.Error#DECK_EMPTY }</code></p>
+     * <p>The deck must contain at least as many tiles as traded. <code>{@link qwirkle.shared.net.IProtocol.Error#DECK_EMPTY }</code></p>
      * <p>The player cannot trade if the board is empty. <code>{@link qwirkle.shared.net.IProtocol.Error#TRADE_FIRST_TURN }</code></p>
      *
      * <dl>
@@ -144,10 +179,24 @@ public interface IProtocol {
      * </dl>
      * <dl>
      *     <dt>Example:</dt>
-     *     <dd><code><strong>CONNECTOK</strong> CHAT,LOBBY</code></dd>
+     *     <dd><code><strong>IDENTIFYOK</strong> CHAT,LOBBY</code></dd>
      * </dl>
      */
-    String SERVER_IDENITFY = "IDENTIFYOK";
+    String SERVER_IDENTIFY = "IDENTIFYOK";
+
+    /**
+     * <p>Sent by the server to confirm a player queueing.</p>
+     *
+     * <dl>
+     *     <dt>Parameters:</dt>
+     *     <dd><code>numbers</code> - list of number of players</dd>
+     * </dl>
+     * <dl>
+     *     <dt>Example:</dt>
+     *     <dd><code><strong>QUEUEOK</strong> 2,4</code></dd>
+     * </dl>
+     */
+    String SERVER_QUEUE = "QUEUEOK";
 
     /**
      * <p>Sent by the server to announce a game starting.</p>
