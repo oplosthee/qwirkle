@@ -251,11 +251,17 @@ public class Board {
             Map<Point, Block> horizontalLine = getHorizontalLine(entry.getKey(), board);
 
             if (verticalLine.size() > 1 && !lines.contains(verticalLine)) {
+                if (verticalLine.size() > 5) {
+                    score = score + 6; // Add qwirkle bonus.
+                }
                 score = score + verticalLine.size();
                 lines.add(verticalLine);
             }
 
             if (horizontalLine.size() > 1 && !lines.contains(horizontalLine)) {
+                if (horizontalLine.size() > 5) {
+                    score = score + 6; // Add qwirkle bonus.
+                }
                 score = score + horizontalLine.size();
                 lines.add(horizontalLine);
             }
