@@ -39,7 +39,11 @@ public class Board {
         }
 
         // Check whether the position of the blocks in the move is allowed.
-        return isLine(blocks) && hasNeighbors(blocks) && isAllowedInLine(blocks);
+        if (board.size() == 0) {
+            return isLine(blocks) && isAllowedInLine(blocks);
+        } else {
+            return isLine(blocks) && hasNeighbors(blocks) && isAllowedInLine(blocks);
+        }
     }
 
     public boolean isAllowedInLine(Map<Point, Block> blocks) {
