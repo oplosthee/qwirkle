@@ -26,6 +26,10 @@ public class Block {
         return color;
     }
 
+    public int getCode() {
+        return (this.getColor().ordinal() * 6) + this.getShape().ordinal();
+    }
+
     public boolean isAllowedNeighbor(Block block) {
         return block == null || (block.getColor().equals(getColor()) ^ block.getShape().equals(getShape()));
     }

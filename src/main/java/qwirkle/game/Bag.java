@@ -1,6 +1,8 @@
 package qwirkle.game;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -64,6 +66,14 @@ public class Bag {
         }
 
         return null;
+    }
+
+    public List<Block> takeHand() {
+        List<Block> hand = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            hand.add((takeRandomBlock()));
+        }
+        return hand;
     }
 
     /**

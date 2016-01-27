@@ -20,6 +20,8 @@ public class Board {
         board.put(point, block);
     }
 
+    //TODO: Add boolean isMovePossible(List<Block> blocks) method.
+
     public void placeBlock(Map<Point, Block> blocks) throws InvalidMoveException {
         if (!isValidMove(blocks)) {
             throw new InvalidMoveException();
@@ -39,7 +41,7 @@ public class Board {
         }
 
         // Check whether the position of the blocks in the move is allowed.
-        if (board.size() == 0) {
+        if (isEmpty()) {
             return isLine(blocks) && isAllowedInLine(blocks);
         } else {
             return isLine(blocks) && hasNeighbors(blocks) && isAllowedInLine(blocks);
@@ -323,6 +325,10 @@ public class Board {
     public boolean isVertical(Map<Point, Block> blocks) {
         java.util.List<Point> points = new ArrayList<>(blocks.keySet());
         return points.get(0).x == points.get(1).x;
+    }
+
+    public boolean isEmpty() {
+        return board.size() == 0;
     }
 
 }

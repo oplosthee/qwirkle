@@ -1,6 +1,9 @@
 package qwirkle.game;
 
+import qwirkle.server.ServerGame;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -14,7 +17,7 @@ public class Player {
     private String name;
     private int score;
     private Set<Block> hand;
-    private Game game;
+    private ServerGame game;
 
     /**
      * Constructs a new player, which sets the name, a new hand and sets the score on 0.
@@ -34,6 +37,10 @@ public class Player {
      */
     public void addBlock(Block block) {
         hand.add(block);
+    }
+
+    public void addBlock(List<Block> block) {
+        hand.addAll(block);
     }
 
     /**
@@ -87,11 +94,11 @@ public class Player {
         return score;
     }
 
-    public void setGame(Game game) {
+    public void setGame(ServerGame game) {
         this.game = game;
     }
 
-    public Game getGame() {
+    public ServerGame getGame() {
         return game;
     }
 
