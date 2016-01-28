@@ -46,7 +46,7 @@ public class Client {
         Client client;
 
         try {
-            client = new Client(Integer.parseInt(portNumber), InetAddress.getByName(ipAddress), "TestClient3");
+            client = new Client(Integer.parseInt(portNumber), InetAddress.getByName(ipAddress), "TestClient2");
             client.start();
         } catch (UnknownHostException e) {
             e.printStackTrace();

@@ -2,11 +2,15 @@ package qwirkle.server;
 
 import qwirkle.game.*;
 import qwirkle.game.exception.InvalidMoveException;
-import qwirkle.shared.net.IProtocol;
+import qwirkle.server.exception.EmptyBagException;
+import qwirkle.server.exception.TilesUnownedException;
+import qwirkle.server.exception.TradeFirstTurnException;
 
-import java.util.List;
-import java.util.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ServerGame {
 
@@ -14,7 +18,6 @@ public class ServerGame {
     private Bag bag;
     private List<SocketPlayer> players;
     private int turn;
-    private boolean isGameOver;
 
     public ServerGame(List<ClientHandler> clients) {
         board = new Board();
@@ -41,7 +44,6 @@ public class ServerGame {
         }
 
         turn = 0;
-        isGameOver = false;
         sendPlayerTurn();
     }
 
@@ -57,12 +59,15 @@ public class ServerGame {
     }
 
     public void doTurn() {
-        if (isGameOver) {
+        if (isGameOver()) {
             endGame(true);
         } else {
             turn = (turn + 1) % players.size();
 
-            //TODO: Add check to make sure Player can make a move.
+            if(!board.isMovePossible(players.get(turn).getHand()) && (bag.getSize() == 0)) {
+                sendPlayerPass(); // If player can't make a move and the bag is empty, skip/pass turn.
+                doTurn();
+            }
 
             sendPlayerTurn();
         }
@@ -75,13 +80,21 @@ public class ServerGame {
         }
     }
 
-    public void doMovePut(Map<Point, Block> move) {
+    public void sendPlayerPass() {
+        for (SocketPlayer socketPlayer : players) {
+            socketPlayer.getClient().sendPass(players.get(turn).getName());
+        }
+    }
+
+    public void doMovePut(Map<Point, Block> move) throws InvalidMoveException, TilesUnownedException {
         SocketPlayer player = players.get(turn);
         try {
-            move.values().stream().filter(block -> !player.getHand().contains(block)).forEach(block -> {
-                //TODO: Throw exception.
-                player.getClient().sendError(IProtocol.Error.MOVE_TILES_UNOWNED + " Cannot place Blocks which you do not own");
-            });
+
+            for (Block block : move.values()) {
+                if (!player.getHand().contains(block)) {
+                    throw new TilesUnownedException();
+                }
+            }
 
             board.placeBlock(move); // Try to place the blocks on the board.
             player.addScore(board.getPoints(move)); // Add the score for the move to the Player.
@@ -93,6 +106,7 @@ public class ServerGame {
             for (int i = 0; i < move.size(); i++) {
                 newBlocks.add(bag.takeRandomBlock());
             }
+
             player.addBlock(newBlocks);
             player.getClient().sendDrawTile(newBlocks);
 
@@ -100,21 +114,32 @@ public class ServerGame {
                 socketPlayer.getClient().sendMovePut(move);
             }
         } catch (InvalidMoveException e) {
-            player.getClient().sendError(IProtocol.Error.MOVE_INVALID + " Invalid move");
+            throw new InvalidMoveException();
         }
 
         doTurn();
     }
 
-    public void doMoveTrade(List<Block> blocks) {
+    public void doMoveTrade(List<Block> blocks) throws TradeFirstTurnException, TilesUnownedException, EmptyBagException {
         if (board.isEmpty()) {
-            //TODO: Player is not allowed to trade when Board is empty, throw exception. (IProtocol.Error#TRADE_FIRST_TURN)
+            throw new TradeFirstTurnException();
+        }
+
+        for (Block block : blocks) {
+            if (!players.get(turn).getHand().contains(block)) {
+                throw new TilesUnownedException();
+            }
+        }
+
+        if (blocks.size() > bag.getSize()) {
+            throw new EmptyBagException();
         }
 
         for (Block block : blocks) {
             SocketPlayer player = players.get(turn);
-            player.removeBlock(block); // TODO: Make sure player actually has the Block.
+            player.removeBlock(block);
             player.addBlock(bag.takeRandomBlock());
+            bag.addBlock(block);
         }
 
         for (SocketPlayer socketPlayer : players) {
@@ -124,8 +149,21 @@ public class ServerGame {
     }
 
     public boolean isGameOver() {
-        //TODO: Game end check. (If no possible move with Blocks in Bag + Hands).
-        return false;
+        if (board.isMovePossible(bag.getBag())) {
+            return false; // Return false if a move is possible with any of the blocks in the bag.
+        }
+
+        for (SocketPlayer player : players) {
+            if (board.isMovePossible(player.getHand())) {
+                return false; // Return false if any Player can make a move.
+            }
+        }
+
+        return true;
+    }
+
+    public ClientHandler getTurnClient() {
+        return players.get(turn).getClient();
     }
 
     public Board getBoard() {

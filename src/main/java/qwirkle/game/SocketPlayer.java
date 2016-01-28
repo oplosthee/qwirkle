@@ -19,4 +19,9 @@ public class SocketPlayer extends Player {
     public ClientHandler getClient() {
         return client;
     }
+
+    @Override
+    public String determineMove() {
+        return "TODO!";
+    }
 }

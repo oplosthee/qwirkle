@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ClientPool {
 
@@ -45,6 +44,7 @@ public class ClientPool {
             for (ClientHandler clientHandler : queues.get(queue)) {
                 clientHandler.setGame(game);
             }
+
             queues.get(queue).clear();
             game.start();
         }

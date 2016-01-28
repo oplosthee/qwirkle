@@ -2,9 +2,8 @@ package qwirkle.game;
 
 import qwirkle.server.ServerGame;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * TODO: Finish Javadoc for Player class.
@@ -12,11 +11,11 @@ import java.util.Set;
  * @author Mathay Kahraman
  * @author Tom Leemreize
  */
-public class Player {
+public abstract class Player {
 
     private String name;
     private int score;
-    private Set<Block> hand;
+    private List<Block> hand;
     private ServerGame game;
 
     /**
@@ -26,7 +25,7 @@ public class Player {
      */
     public Player(String name) {
         setName(name);
-        hand = new HashSet<>();
+        hand = new ArrayList<>();
         score = 0;
     }
 
@@ -53,7 +52,7 @@ public class Player {
         hand.remove(block);
     }
 
-    public Set<Block> getHand() {
+    public List<Block> getHand() {
         return hand;
     }
 
@@ -101,5 +100,7 @@ public class Player {
     public ServerGame getGame() {
         return game;
     }
+
+    public abstract String determineMove();
 
 }

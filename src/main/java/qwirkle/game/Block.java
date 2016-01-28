@@ -18,6 +18,11 @@ public class Block {
         this.color = color;
     }
 
+    public Block(int blockCode) {
+        this.shape = Shape.values()[blockCode % Shape.values().length];
+        this.color = Color.values()[blockCode / Color.values().length];
+    }
+
     public Shape getShape() {
         return shape;
     }
@@ -41,7 +46,7 @@ public class Block {
 
     @Override
     public String toString() {
-        return String.format("Shape: %s - Color: %s", shape, color);
+        return String.format("%s%s", shape.toString().charAt(0), color.toString().charAt(0));
     }
 
 }

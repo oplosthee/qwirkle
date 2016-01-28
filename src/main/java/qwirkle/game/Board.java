@@ -2,10 +2,10 @@ package qwirkle.game;
 
 import qwirkle.game.exception.InvalidMoveException;
 
-import java.util.List;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Board {
@@ -20,7 +20,34 @@ public class Board {
         board.put(point, block);
     }
 
-    //TODO: Add boolean isMovePossible(List<Block> blocks) method.
+    public void setBlock(Map<Point, Block> move) {
+        for (Map.Entry<Point, Block> block : move.entrySet()) {
+            setBlock(block.getKey(), block.getValue());
+        }
+    }
+
+    public boolean isMovePossible(List<Block> blocks) {
+        if (board.size() == 0) {
+            return true;
+        }
+
+        int[] boundaries = getBoundaries();
+
+        for (Block block : blocks) {
+            for (int x = boundaries[0]; x < boundaries[2] + 1; x++) {
+                for (int y = boundaries[1]; y < boundaries[3] + 1; y++) {
+                    Point point = new Point(0,1);
+                    Map<Point, Block> move = new HashMap<>();
+                    move.put(point, block);
+                    if (isValidMove(move)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
 
     public void placeBlock(Map<Point, Block> blocks) throws InvalidMoveException {
         if (!isValidMove(blocks)) {
@@ -331,32 +358,34 @@ public class Board {
         return board.size() == 0;
     }
 
-    @Override
-    public String toString() {
-        int lowY = 0;
-        int highY = 0;
-        int lowX = 0;
-        int highX = 0;
-
-        String output = "";
-
+    public int[] getBoundaries() {
+        int[] boundaries = {0, 0, 0, 0};
+        //[0]: lowX - [1]: lowY - [2]: highX - [3]: highY
         for (Point point : board.keySet()) {
-            if (point.x <= lowX) {
-                lowX = point.x;
+            if (point.x <= boundaries[0]) {
+                boundaries[0] = point.x;
             }
-            if (point.y <= lowY) {
-                lowY = point.y;
+            if (point.y <= boundaries[1]) {
+                boundaries[1] = point.y;
             }
-            if (point.x >= highX) {
-                highX = point.x;
+            if (point.x >= boundaries[2]) {
+                boundaries[2] = point.x;
             }
-            if (point.y >= highY) {
-                highY = point.y;
+            if (point.y >= boundaries[3]) {
+                boundaries[3] = point.y;
             }
         }
 
-        for (int x = lowX - 2; x < highX + 3; x++) {
-            for (int y = lowY - 2; y < highY + 3; y++) {
+        return boundaries;
+    }
+
+    @Override
+    public String toString() {
+        int[] boundaries = getBoundaries();
+        String output = "";
+
+        for (int x = boundaries[0] - 2; x < boundaries[2] + 3; x++) {
+            for (int y = boundaries[1] - 2; y < boundaries[3] + 3; y++) {
                 Block block = board.get(new Point(x, y));
                 output += String.format("[%5s]", block == null ? x +","+y : block.toString());
             }

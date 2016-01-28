@@ -6,4 +6,10 @@ public class HumanPlayer extends Player {
         super(name);
     }
 
+    @Override
+    public String determineMove() {
+        System.out.println("This is where the player would make a move.");
+        return "TODO!";
+    }
+
 }

@@ -1,10 +1,9 @@
 package qwirkle.server;
 
 import qwirkle.game.Block;
-import qwirkle.game.Player;
 import qwirkle.game.SocketPlayer;
-import qwirkle.server.exception.InvalidNameException;
-import qwirkle.server.exception.UsedNameException;
+import qwirkle.game.exception.InvalidMoveException;
+import qwirkle.server.exception.*;
 import qwirkle.shared.net.IProtocol;
 import qwirkle.util.ProtocolFormatter;
 
@@ -12,8 +11,8 @@ import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class ClientHandler implements Runnable {
 
@@ -27,10 +26,6 @@ public class ClientHandler implements Runnable {
 
     private String name;
     private boolean connected;
-    private boolean isInGame;
-
-    //TODO: Implement feature support.
-    private List<IProtocol.Feature> features;
 
     public ClientHandler(Server server, Socket client, ClientPool pool) throws IOException {
         this.server = server;
@@ -44,7 +39,6 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         connected = true;
-        isInGame = false;
 
         while (connected) {
             try {
@@ -63,7 +57,6 @@ public class ClientHandler implements Runnable {
 
     public void endGame(boolean won, Map<Integer, String> scores) {
         game = null;
-        isInGame = false;
         sendRaw(ProtocolFormatter.endGame(won, scores));
     }
 
@@ -74,18 +67,18 @@ public class ClientHandler implements Runnable {
 
     public void setGame(ServerGame game) {
         this.game = game;
-        isInGame = true;
     }
 
     public void sendMovePut(Map<Point, Block> move) {
-        sendRaw(ProtocolFormatter.movePut(move));
+        sendRaw(ProtocolFormatter.serverMovePut(move));
     }
 
     public void sendMoveTrade(int amount) {
-        sendRaw(IProtocol.SERVER_MOVE_TRADE + " " +  amount);
+        sendRaw(IProtocol.SERVER_MOVE_TRADE + " " + amount);
     }
 
     public void sendTurn(String player) {
+        System.out.println(game.getBoard().toString());
         sendRaw(IProtocol.SERVER_TURN + " " + player);
     }
 
@@ -106,14 +99,15 @@ public class ClientHandler implements Runnable {
             writer.write(message);
             writer.newLine();
             writer.flush();
+        } catch (SocketException e) {
+            System.out.println("[Server] Debug (ClientHandler) - Tried to send message to disconnected client.");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void parse(String[] message) {
-        switch(message[0]) {
-            // TODO: Add ServerGame methods.
+        switch (message[0]) {
             case IProtocol.CLIENT_IDENTIFY:
                 if (message.length < 1) {
                     break;
@@ -133,13 +127,32 @@ public class ClientHandler implements Runnable {
 
                 break;
             case IProtocol.CLIENT_QUIT:
-                pool.removeFromAllQueues(this);
                 disconnect();
+                break;
+            case IProtocol.CLIENT_MOVE_PUT:
+                if (game == null) {
+                    break;
+                }
+                if (game.getTurnClient().equals(this)) {
+                    doMovePut(Arrays.copyOfRange(message, 1, message.length));
+                } else {
+                    sendError(IProtocol.Error.ILLEGAL_STATE.ordinal() + " It is not your turn");
+                }
+                break;
+            case IProtocol.CLIENT_MOVE_TRADE:
+                if (game == null) {
+                    break;
+                }
+                if (game.getTurnClient().equals(this)) {
+                    doMoveTrade(Arrays.copyOfRange(message, 1, message.length));
+                } else {
+                    sendError(IProtocol.Error.ILLEGAL_STATE.ordinal() + " It is not your turn");
+                }
                 break;
             case IProtocol.CLIENT_QUEUE:
                 if (message.length < 1) {
                     break;
-                } else if (isInGame) {
+                } else if (game != null) {
                     sendError(IProtocol.Error.ILLEGAL_STATE.ordinal() + " You cannot queue while you are in a game");
                     break;
                 }
@@ -158,9 +171,50 @@ public class ClientHandler implements Runnable {
                 }
                 break;
             default:
+                sendRaw(String.valueOf(IProtocol.Error.INVALID_COMMAND.ordinal() + " The server does not recognise this command"));
                 break;
         }
 
+    }
+
+    public void doMovePut(String[] params) {
+        //TODO: Catch possible exceptions.
+        Map<Point, Block> moves = new HashMap<>();
+
+        for (String move : params) {
+            String[] moveArg = move.split("@");
+            int blockId = Integer.parseInt(moveArg[0]);
+            int moveX = Integer.parseInt(moveArg[1].split(",")[0]);
+            int moveY = Integer.parseInt(moveArg[1].split(",")[1]);
+
+            moves.put(new Point(moveX, moveY), new Block(blockId));
+        }
+
+        try {
+            game.doMovePut(moves);
+        } catch (InvalidMoveException e) {
+            sendError(IProtocol.Error.MOVE_INVALID.ordinal() + " Invalid move");
+        } catch (TilesUnownedException e) {
+            sendError(IProtocol.Error.MOVE_TILES_UNOWNED.ordinal() + " Player tried to place unowned tile");
+        }
+    }
+
+    public void doMoveTrade(String[] params) {
+        List<Block> tradeBlocks = new ArrayList<>();
+
+        for (String block : params) {
+            tradeBlocks.add(new Block(Integer.parseInt(block)));
+        }
+
+        try {
+            game.doMoveTrade(tradeBlocks);
+        } catch (TradeFirstTurnException e) {
+            sendError(IProtocol.Error.TRADE_FIRST_TURN.ordinal() + " You cannot trade on the first turn");
+        } catch (TilesUnownedException e) {
+            sendError(IProtocol.Error.MOVE_TILES_UNOWNED.ordinal() + " Player tried to place unowned tile");
+        } catch (EmptyBagException e) {
+            sendError(IProtocol.Error.DECK_EMPTY.ordinal() + " The bag does not contain this many blocks");
+        }
     }
 
     public String getName() {
@@ -169,12 +223,15 @@ public class ClientHandler implements Runnable {
 
     public void disconnect() {
         try {
+            pool.removeFromAllQueues(this);
+            if (game != null) {
+                game.endGame(false); // End the game the client was in.
+            }
             reader.close();
             writer.close();
             client.close();
             System.out.println("[Server] Debug (ClientHandler) - Client has disconnected.");
             pool.removeClient(name);
-            isInGame = false;
             connected = false;
         } catch (IOException e) {
             e.printStackTrace();

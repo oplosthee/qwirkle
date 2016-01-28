@@ -85,4 +85,8 @@ public class Bag {
         blocks.add(block);
     }
 
+    public List<Block> getBag() {
+        return new ArrayList<>(blocks);
+    }
+
 }

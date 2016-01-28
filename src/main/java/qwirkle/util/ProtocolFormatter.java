@@ -35,7 +35,7 @@ public final class ProtocolFormatter implements IProtocol {
         return removeLastComma(message);
     }
 
-    public static String movePut(Map<Point, Block> move) {
+    public static String clientMovePut(Map<Point, Block> move) {
         String message = CLIENT_MOVE_PUT;
 
         for (Map.Entry<Point, Block> entry : move.entrySet()) {
@@ -64,6 +64,18 @@ public final class ProtocolFormatter implements IProtocol {
 
         for (Player player : players) {
             message = message + " " + player.getName();
+        }
+
+        return message;
+    }
+
+    public static String serverMovePut(Map<Point, Block> move) {
+        String message = SERVER_MOVE_PUT;
+
+        for (Map.Entry<Point, Block> entry : move.entrySet()) {
+            Block block = entry.getValue();
+            Point point = entry.getKey();
+            message = MessageFormat.format("{0} {1}@{2},{3}", message, block.getCode(), point.x, point.y);
         }
 
         return message;

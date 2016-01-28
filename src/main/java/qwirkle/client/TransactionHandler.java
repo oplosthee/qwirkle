@@ -1,19 +1,20 @@
 package qwirkle.client;
 
 import qwirkle.game.Block;
+import qwirkle.game.HumanPlayer;
 import qwirkle.shared.net.IProtocol;
 import qwirkle.util.ProtocolFormatter;
 
-import java.util.List;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static qwirkle.shared.net.IProtocol.SERVER_ERROR;
-import static qwirkle.shared.net.IProtocol.SERVER_IDENTIFY;
-import static qwirkle.shared.net.IProtocol.SERVER_QUEUE;
+import static qwirkle.shared.net.IProtocol.*;
 
 public class TransactionHandler {
 
@@ -22,12 +23,14 @@ public class TransactionHandler {
     private String name;
     private BufferedReader reader;
     private BufferedWriter writer;
+    private ClientGame game;
 
     private boolean connected;
 
     public TransactionHandler(Client client, Socket socket) throws IOException {
         this.client = client;
         this.socket = socket;
+        game = null;
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
@@ -63,7 +66,7 @@ public class TransactionHandler {
     }
 
     public void sendMovePut(Map<Point, Block> move) {
-        sendRaw(ProtocolFormatter.movePut(move));
+        sendRaw(ProtocolFormatter.clientMovePut(move));
     }
 
     public void sendMoveTrade(List<Block> blocks) {
@@ -101,10 +104,45 @@ public class TransactionHandler {
                 }
 
                 System.out.println("[Client] Debug (TransactionHandler) - Error (" + IProtocol.Error.values()[errorId] + ") -" + reason);
-                disconnect();
+                //disconnect(); TODO: Proper error handling.
+                break;
+            case SERVER_GAMESTART:
+                System.out.println("[Client] Debug (TransactionHandler) - Started a new game: " + message);
+                game = new ClientGame(new HumanPlayer(name)); // TODO: Games with AI player.
+                Block testBlock = new Block(30);
+                Point testPoint = new Point(0,0);
+                Map<Point, Block> move = new HashMap<>();
+                move.put(testPoint, testBlock);
+                sendMovePut(move);
+                break;
+            case SERVER_GAMEEND:
+                game = null;
+                String endReason =  arguments[1];
+                String scores = "";
+
+                for (int i = 2; i < arguments.length; i++) {
+                    scores += " " + arguments[i];
+                }
+
+                System.out.println("[Client] Debug (TransactionHandler) - The game ended because [" + endReason + "]. The scores are" + scores);
+                //TODO: Allow player to enter new queue(s).
+                break;
+            case SERVER_DRAWTILE:
+                game.drawTile(Arrays.copyOfRange(arguments, 1, arguments.length));
+                break;
+            case SERVER_MOVE_PUT:
+                game.doMove(Arrays.copyOfRange(arguments, 1, arguments.length));
+                break;
+            case SERVER_TURN:
+                System.out.println(game.getBoard().toString());
+                if (arguments[1].equals(name)) {
+                    game.getPlayer().determineMove();
+                } else {
+                    System.out.println("[Client] Debug (TransactionHandler) - " + arguments[1] + "'s turn started.");
+                }
                 break;
             default:
-                System.out.println("[Client] Debug (TransActionHandler) - Received: " + message);
+                System.out.println("[Client] Debug (TransactionHandler) - Received: " + message);
                 break;
         }
     }
