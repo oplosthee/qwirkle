@@ -331,4 +331,39 @@ public class Board {
         return board.size() == 0;
     }
 
+    @Override
+    public String toString() {
+        int lowY = 0;
+        int highY = 0;
+        int lowX = 0;
+        int highX = 0;
+
+        String output = "";
+
+        for (Point point : board.keySet()) {
+            if (point.x <= lowX) {
+                lowX = point.x;
+            }
+            if (point.y <= lowY) {
+                lowY = point.y;
+            }
+            if (point.x >= highX) {
+                highX = point.x;
+            }
+            if (point.y >= highY) {
+                highY = point.y;
+            }
+        }
+
+        for (int x = lowX - 2; x < highX + 3; x++) {
+            for (int y = lowY - 2; y < highY + 3; y++) {
+                Block block = board.get(new Point(x, y));
+                output += String.format("[%5s]", block == null ? x +","+y : block.toString());
+            }
+            output += "\n";
+        }
+
+        return output;
+    }
+
 }
