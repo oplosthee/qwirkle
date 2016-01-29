@@ -2,7 +2,6 @@ package qwirkle.game;
 
 import qwirkle.client.ClientView;
 import qwirkle.server.ClientHandler;
-import qwirkle.server.exception.InvalidNameException;
 
 public class SocketPlayer extends Player {
 

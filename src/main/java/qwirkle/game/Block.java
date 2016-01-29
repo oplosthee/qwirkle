@@ -43,7 +43,9 @@ public class Block {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Block && ((Block) obj).getColor() == getColor() && ((Block) obj).getShape() == getShape();
+        return obj instanceof Block
+                && ((Block) obj).getColor() == getColor()
+                && ((Block) obj).getShape() == getShape();
     }
 
     @Override

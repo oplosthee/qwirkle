@@ -107,7 +107,7 @@ public class TransactionHandler {
                     reason = reason + " " + arguments[i];
                 }
 
-                if (errorId >= 5 && errorId <= 8 ) {
+                if (errorId >= 5 && errorId <= 8) {
                     view.print("[Client] Invalid move - Resetting tiles to old situation.");
                     game.getPlayer().getHand().addAll(game.getPlayer().lastMove);
                 }

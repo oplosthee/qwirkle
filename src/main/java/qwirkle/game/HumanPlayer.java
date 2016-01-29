@@ -22,7 +22,8 @@ public class HumanPlayer extends Player {
         // Player botPlayer = new RobotPlayer("", 10);
         // botPlayer.setGame(getGame()); --> is null.
         // botPlayer.addBlock(getHand());
-        // System.out.println("[HINT] The move the bot would have made in this situation is: " + botPlayer.determineMove());
+        // System.out.println("[HINT] The move the bot would have made in this situation is:
+        // " + botPlayer.determineMove());
 
         while (true) {
             view.print("Enter what kind of move you want to do (PUT/TRADE/QUIT).");
@@ -69,7 +70,7 @@ public class HumanPlayer extends Player {
                 currentMove += "[" + entry.getValue().toString() +
                         " (" + entry.getKey().x + "," + entry.getKey().y + ")]";
             }
-            view.print("Current move: "+ currentMove);
+            view.print("Current move: " + currentMove);
 
             put = input.nextLine();
 
@@ -113,7 +114,7 @@ public class HumanPlayer extends Player {
             }
             view.print("Your hand is: " + currentHand);
 
-            view.print("Current move: "+ tradeBlocks);
+            view.print("Current move: " + tradeBlocks);
 
             trade = input.nextLine();
 
