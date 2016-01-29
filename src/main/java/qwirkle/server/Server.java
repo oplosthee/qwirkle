@@ -46,13 +46,4 @@ public class Server {
         }
     }
 
-    public static void main(String[] args) {
-        //Scanner input = new Scanner(System.in);
-        String portNumber = "1024";
-
-        //TODO: Ask for new port number when it is in use (BindException).
-        Server server = new Server(Integer.parseInt(portNumber));
-        server.start();
-    }
-
 }
