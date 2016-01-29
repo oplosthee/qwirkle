@@ -132,6 +132,7 @@ public class TransactionHandler {
             case SERVER_GAMESTART:
                 view.print("[Client] Debug (TransactionHandler) - Started a new game: " + message);
                 game = new ClientGame(new HumanPlayer(name, view)); // TODO: Games with AI player.
+                view.setBoard(game.getBoard());
                 break;
             case SERVER_GAMEEND:
                 game = null;
@@ -143,6 +144,7 @@ public class TransactionHandler {
                 }
 
                 view.print("[Client] Debug (TransactionHandler) - The game ended because [" + endReason + "]. The scores are" + scores);
+                view.setBoard(null);
                 joinQueue();
                 break;
             case SERVER_DRAWTILE:

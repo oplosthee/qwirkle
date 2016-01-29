@@ -1,10 +1,15 @@
 package qwirkle.client;
 
-import java.io.PrintStream;
+import qwirkle.game.Board;
 
-public class ClientView {
+import java.io.PrintStream;
+import java.util.Observable;
+import java.util.Observer;
+
+public class ClientView implements Observer {
 
     private PrintStream printStream;
+    private Board board;
 
     public ClientView() {
         this.printStream = new PrintStream(System.out);
@@ -18,8 +23,16 @@ public class ClientView {
         printStream.println(message);
     }
 
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
     public void close() {
         printStream.close();
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+
+    }
 }
