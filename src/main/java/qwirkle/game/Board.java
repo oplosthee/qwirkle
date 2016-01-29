@@ -3,12 +3,10 @@ package qwirkle.game;
 import qwirkle.game.exception.InvalidMoveException;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
-public class Board {
+public class Board extends Observable {
 
     private Map<Point, Block> board;
 
@@ -18,6 +16,8 @@ public class Board {
 
     public void setBlock(Point point, Block block) {
         board.put(point, block);
+        setChanged();
+        notifyObservers();
     }
 
     public void setBlock(Map<Point, Block> move) {
@@ -57,6 +57,9 @@ public class Board {
         for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
             board.put(entry.getKey(), entry.getValue());
         }
+        
+        setChanged();
+        notifyObservers();
     }
 
     public boolean isValidMove(Map<Point, Block> blocks) {
