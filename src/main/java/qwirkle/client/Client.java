@@ -10,25 +10,27 @@ public class Client {
     private int port;
     private InetAddress inetAddress;
     private String clientName;
+    private ClientView view;
 
     public Client(int port, InetAddress inetAddress, String clientName) {
         this.port = port;
         this.inetAddress = inetAddress;
         this.clientName = clientName;
+        view = new ClientView();
     }
 
     public void start() {
         try {
             Socket socket = new Socket(inetAddress.getHostAddress(), port);
-            System.out.println("[Client] Debug (Client) - Connected to server.");
+            view.print("[Client] Debug (Client) - Connected to server.");
 
-            TransactionHandler handler = new TransactionHandler(this, socket);
+            TransactionHandler handler = new TransactionHandler(this, socket, view);
             handler.sendIdentify(clientName);
             handler.run();
 
 
         } catch (IOException e) {
-            System.out.println("[Client] Debug (Client) - Error: Connection refused.");
+            view.print("[Client] Debug (Client) - Error: Connection refused.");
         }
     }
 
@@ -37,7 +39,6 @@ public class Client {
         String portNumber = "1024";
         String ipAddress = "127.0.0.1";
 
-        //TODO: Add port/ip verification.
         //System.out.println("Enter port number:\n");
         //portNumber = input.next();
         //System.out.println("Enter IP address:\n");
@@ -46,7 +47,7 @@ public class Client {
         Client client;
 
         try {
-            client = new Client(Integer.parseInt(portNumber), InetAddress.getByName(ipAddress), "TestClient2");
+            client = new Client(Integer.parseInt(portNumber), InetAddress.getByName(ipAddress), "ClientName");
             client.start();
         } catch (UnknownHostException e) {
             e.printStackTrace();

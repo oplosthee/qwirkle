@@ -1,13 +1,18 @@
 package qwirkle.game;
 
+import org.omg.CORBA.ORBPackage.InvalidName;
+import qwirkle.client.ClientView;
+import qwirkle.game.exception.InvalidMoveException;
 import qwirkle.server.ServerGame;
+import qwirkle.server.exception.InvalidNameException;
+import qwirkle.shared.net.IProtocol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * TODO: Finish Javadoc for Player class.
- *
  * @author Mathay Kahraman
  * @author Tom Leemreize
  */
@@ -17,16 +22,20 @@ public abstract class Player {
     private int score;
     private List<Block> hand;
     private ServerGame game;
+    public ClientView view;
+    public List<Block> lastMove; // Stores the last move a player made, used to restore the player's hand when the move was invalid.
 
     /**
      * Constructs a new player, which sets the name, a new hand and sets the score on 0.
      *
      * @param name name for the Player
      */
-    public Player(String name) {
+    public Player(String name, ClientView view) {
+        lastMove = new ArrayList<>();
         setName(name);
         hand = new ArrayList<>();
         score = 0;
+        this.view = view;
     }
 
     /**
@@ -48,8 +57,9 @@ public abstract class Player {
      * @param block Block to be removed from the Player's hand
      */
     public void removeBlock(Block block) {
-        //TODO: Check whether the Block exists in the Player's hand.
-        hand.remove(block);
+        if (getHand().contains(block)) {
+            hand.remove(block);
+        }
     }
 
     public List<Block> getHand() {
@@ -62,7 +72,6 @@ public abstract class Player {
      * @param name String to which the Player's name should be set
      */
     public void setName(String name) {
-        //TODO: Check whether a Player's name meets the requirements.
         this.name = name;
     }
 

@@ -62,7 +62,7 @@ public class ClientPool {
     }
 
     public void removeFromAllQueues(ClientHandler handler) {
-        for (Map.Entry<Integer, List<ClientHandler>> entry : queues.entrySet()) { //TODO: For later: removing during a loop is probably not a good idea.
+        for (Map.Entry<Integer, List<ClientHandler>> entry : queues.entrySet()) {
             removeFromQueue(handler, entry.getKey());
         }
     }

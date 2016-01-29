@@ -16,7 +16,6 @@ import java.util.List;
 
 public class ClientHandler implements Runnable {
 
-    private Server server;
     private Socket client;
     private BufferedReader reader;
     private BufferedWriter writer;
@@ -27,8 +26,7 @@ public class ClientHandler implements Runnable {
     private String name;
     private boolean connected;
 
-    public ClientHandler(Server server, Socket client, ClientPool pool) throws IOException {
-        this.server = server;
+    public ClientHandler(Socket client, ClientPool pool) throws IOException {
         this.client = client;
         this.pool = pool;
         reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
@@ -44,6 +42,7 @@ public class ClientHandler implements Runnable {
             try {
                 String raw = reader.readLine();
                 if (raw != null) {
+                    System.out.println("Received: " + raw);
                     parse(raw.split(" "));
                 }
             } catch (SocketException e) {
@@ -78,7 +77,6 @@ public class ClientHandler implements Runnable {
     }
 
     public void sendTurn(String player) {
-        System.out.println(game.getBoard().toString());
         sendRaw(IProtocol.SERVER_TURN + " " + player);
     }
 
@@ -161,9 +159,12 @@ public class ClientHandler implements Runnable {
 
                 try {
                     for (String queue : queues) {
-                        // TODO: Add check to make sure it's an integer.
-                        int queueSize = Integer.parseInt(queue);
-                        pool.addClientToQueue(this, queueSize);
+                        try {
+                            int queueSize = Integer.parseInt(queue);
+                            pool.addClientToQueue(this, queueSize);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Player tried to join invalid queue.");
+                        }
                     }
                     sendRaw(IProtocol.SERVER_QUEUE);
                 } catch (NumberFormatException e) {
@@ -178,7 +179,6 @@ public class ClientHandler implements Runnable {
     }
 
     public void doMovePut(String[] params) {
-        //TODO: Catch possible exceptions.
         Map<Point, Block> moves = new HashMap<>();
 
         for (String move : params) {
@@ -192,10 +192,16 @@ public class ClientHandler implements Runnable {
 
         try {
             game.doMovePut(moves);
+            System.out.println("[Server] (ClientHandler) - Current game situation:");
+            System.out.println(game.getBoard().toString());
         } catch (InvalidMoveException e) {
             sendError(IProtocol.Error.MOVE_INVALID.ordinal() + " Invalid move");
+            game.sendPlayerTurn();
         } catch (TilesUnownedException e) {
             sendError(IProtocol.Error.MOVE_TILES_UNOWNED.ordinal() + " Player tried to place unowned tile");
+            game.sendPlayerTurn();
+        } catch (NullPointerException e) {
+            System.out.println("[Server] ClientHandler - Game ended during turn.");
         }
     }
 
@@ -210,10 +216,13 @@ public class ClientHandler implements Runnable {
             game.doMoveTrade(tradeBlocks);
         } catch (TradeFirstTurnException e) {
             sendError(IProtocol.Error.TRADE_FIRST_TURN.ordinal() + " You cannot trade on the first turn");
+            game.sendPlayerTurn();
         } catch (TilesUnownedException e) {
             sendError(IProtocol.Error.MOVE_TILES_UNOWNED.ordinal() + " Player tried to place unowned tile");
+            game.sendPlayerTurn();
         } catch (EmptyBagException e) {
             sendError(IProtocol.Error.DECK_EMPTY.ordinal() + " The bag does not contain this many blocks");
+            game.sendPlayerTurn();
         }
     }
 

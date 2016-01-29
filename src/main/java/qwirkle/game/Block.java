@@ -46,7 +46,9 @@ public class Block {
 
     @Override
     public String toString() {
-        return String.format("%s%s", shape.toString().charAt(0), color.toString().charAt(0));
+        String shapeCode = "" + shape.toString().charAt(0) + shape.toString().charAt(1);
+        String colorCode = "" + color.toString().charAt(0) + color.toString().charAt(1);
+        return String.format("%s%s", shapeCode, colorCode);
     }
 
 }

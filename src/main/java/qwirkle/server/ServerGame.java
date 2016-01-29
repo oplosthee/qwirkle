@@ -1,8 +1,11 @@
 package qwirkle.server;
 
+import org.omg.CORBA.ORBPackage.InvalidName;
+import qwirkle.client.ClientView;
 import qwirkle.game.*;
 import qwirkle.game.exception.InvalidMoveException;
 import qwirkle.server.exception.EmptyBagException;
+import qwirkle.server.exception.InvalidNameException;
 import qwirkle.server.exception.TilesUnownedException;
 import qwirkle.server.exception.TradeFirstTurnException;
 
@@ -24,7 +27,7 @@ public class ServerGame {
         bag = new Bag();
         players = new ArrayList<>();
         for (ClientHandler client : clients) {
-            SocketPlayer player = new SocketPlayer(client.getName(), client);
+            SocketPlayer player = new SocketPlayer(client.getName(), client, new ClientView());
             players.add(player);
         }
 
@@ -101,10 +104,16 @@ public class ServerGame {
             move.values().forEach(player::removeBlock); // Remove the blocks from the Player's hand.
 
             // Give player new Blocks.
-            // TODO: Make sure there are enough Blocks in the Bag left to give.
             List<Block> newBlocks = new ArrayList<>();
-            for (int i = 0; i < move.size(); i++) {
-                newBlocks.add(bag.takeRandomBlock());
+
+            if (bag.getSize() < move.size()) {
+                for (int i = 0; i < bag.getSize(); i++) {
+                    newBlocks.add(bag.takeRandomBlock());
+                }
+            } else {
+                for (int i = 0; i < move.size(); i++) {
+                    newBlocks.add(bag.takeRandomBlock());
+                }
             }
 
             player.addBlock(newBlocks);
@@ -135,29 +144,38 @@ public class ServerGame {
             throw new EmptyBagException();
         }
 
+        SocketPlayer player = players.get(turn);
+        List<Block> newBlocks = new ArrayList<>();
+
         for (Block block : blocks) {
-            SocketPlayer player = players.get(turn);
             player.removeBlock(block);
-            player.addBlock(bag.takeRandomBlock());
+            Block newBlock = bag.takeRandomBlock();
+            player.addBlock(newBlock);
+            newBlocks.add(newBlock);
             bag.addBlock(block);
         }
+
+        player.getClient().sendDrawTile(newBlocks);
 
         for (SocketPlayer socketPlayer : players) {
             socketPlayer.getClient().sendMoveTrade(blocks.size());
         }
 
+        doTurn();
     }
 
     public boolean isGameOver() {
-        if (board.isMovePossible(bag.getBag())) {
-            return false; // Return false if a move is possible with any of the blocks in the bag.
-        }
-
         for (SocketPlayer player : players) {
             if (board.isMovePossible(player.getHand())) {
                 return false; // Return false if any Player can make a move.
             }
         }
+        System.out.println("No move possible for players.");
+
+        if (board.isMovePossible(bag.getBag())) {
+            return false; // Return false if a move is possible with any of the blocks in the bag.
+        }
+        System.out.println("No move possible with bag, ending game.");
 
         return true;
     }

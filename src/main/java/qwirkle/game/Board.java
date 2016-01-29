@@ -36,7 +36,7 @@ public class Board {
         for (Block block : blocks) {
             for (int x = boundaries[0]; x < boundaries[2] + 1; x++) {
                 for (int y = boundaries[1]; y < boundaries[3] + 1; y++) {
-                    Point point = new Point(0,1);
+                    Point point = new Point(x,y);
                     Map<Point, Block> move = new HashMap<>();
                     move.put(point, block);
                     if (isValidMove(move)) {
@@ -79,7 +79,6 @@ public class Board {
         Map<Point, Block> boardCopy = new HashMap<>(board);
         boardCopy.putAll(blocks);
 
-        //TODO: Improve algorithm (if possible) to check whether a block is allowed in a line (color/shape check).
         for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
             Block block = entry.getValue();
             Point point = entry.getKey();
@@ -215,7 +214,6 @@ public class Board {
     public List<Block> getNeighbors(Point point, Map<Point, Block> boardCopy) {
         List<Block> neighbors = new ArrayList<>();
 
-        //TODO: Improve Neighbor Block getting.
         Block blockLeft = boardCopy.get(new Point(point.x - 1, point.y));
         Block blockUp = boardCopy.get(new Point(point.x, point.y + 1));
         Block blockRight = boardCopy.get(new Point(point.x + 1, point.y));
@@ -315,7 +313,6 @@ public class Board {
         List<Map<Point, Block>> lines = new ArrayList<>();
         int score = 0;
 
-        //TODO: Remove this when proper first turn check has been implemented.
         if (board.size() == 1 && blocks.size() == 1) {
             return 1;
         }
@@ -363,16 +360,16 @@ public class Board {
         //[0]: lowX - [1]: lowY - [2]: highX - [3]: highY
         for (Point point : board.keySet()) {
             if (point.x <= boundaries[0]) {
-                boundaries[0] = point.x;
+                boundaries[0] = point.x - 1;
             }
             if (point.y <= boundaries[1]) {
-                boundaries[1] = point.y;
+                boundaries[1] = point.y - 1;
             }
             if (point.x >= boundaries[2]) {
-                boundaries[2] = point.x;
+                boundaries[2] = point.x + 1;
             }
             if (point.y >= boundaries[3]) {
-                boundaries[3] = point.y;
+                boundaries[3] = point.y + 1;
             }
         }
 
@@ -384,10 +381,10 @@ public class Board {
         int[] boundaries = getBoundaries();
         String output = "";
 
-        for (int x = boundaries[0] - 2; x < boundaries[2] + 3; x++) {
-            for (int y = boundaries[1] - 2; y < boundaries[3] + 3; y++) {
-                Block block = board.get(new Point(x, y));
-                output += String.format("[%5s]", block == null ? x +","+y : block.toString());
+        for (int y = boundaries[1] - 2; y < boundaries[3] + 3; y++) {
+            for (int x = boundaries[0] - 2; x < boundaries[2] + 3; x++) {
+                Block block = board.get(new Point(x, y * - 1));
+                output += String.format("[%5s]", block == null ? x +","+y * - 1 : block.toString());
             }
             output += "\n";
         }

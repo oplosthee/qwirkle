@@ -10,7 +10,6 @@ public class Server {
             = "Enter the port number on which the server should listen.\n";
 
     private int port;
-    private boolean running;
     private ServerSocket socket;
     private ClientPool pool;
 
@@ -20,7 +19,7 @@ public class Server {
     }
 
     public void start() {
-        running = true;
+        boolean running = true;
 
         try {
             socket = new ServerSocket(port);
@@ -39,7 +38,7 @@ public class Server {
             Socket client = socket.accept();
             System.out.println("[Server] Debug (Server) - Client socket accepted.");
 
-            ClientHandler clientHandler = new ClientHandler(this, client, pool);
+            ClientHandler clientHandler = new ClientHandler(client, pool);
             new Thread(clientHandler).start();
 
         } catch (IOException e) {

@@ -2,6 +2,7 @@ package qwirkle.client;
 
 import qwirkle.game.Block;
 import qwirkle.game.HumanPlayer;
+import qwirkle.game.Player;
 import qwirkle.shared.net.IProtocol;
 import qwirkle.util.ProtocolFormatter;
 
@@ -10,9 +11,9 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import static qwirkle.shared.net.IProtocol.*;
 
@@ -24,15 +25,17 @@ public class TransactionHandler {
     private BufferedReader reader;
     private BufferedWriter writer;
     private ClientGame game;
+    private ClientView view;
 
     private boolean connected;
 
-    public TransactionHandler(Client client, Socket socket) throws IOException {
+    public TransactionHandler(Client client, Socket socket, ClientView view) throws IOException {
         this.client = client;
         this.socket = socket;
         game = null;
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        this.view = view;
     }
 
     public void run() {
@@ -40,9 +43,12 @@ public class TransactionHandler {
 
         while (connected) {
             try {
-                parse(reader.readLine());
+                String input = reader.readLine();
+                if (input != null) {
+                    parse(input);
+                }
             }catch (SocketException e) {
-                System.out.println("[Client] Debug (TransactionHandler) - Server disconnected. (SocketException)");
+                view.print("[Client] Debug (TransactionHandler) - Server disconnected. (SocketException)");
                 disconnect();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -83,17 +89,30 @@ public class TransactionHandler {
         }
     }
 
+    public void joinQueue() {
+        Scanner input = new Scanner(System.in);
+        view.print("[Client] Please enter which queues you want to join in format: 2,3,4");
+        String userInput = input.nextLine();
+        String[] queues = userInput.split(",");
+        int[] joinQueues = new int[queues.length];
+
+        for (int i = 0; i < queues.length; i++) {
+            joinQueues[i] = Integer.parseInt(queues[i]);
+        }
+
+        sendJoinQueue(joinQueues);
+    }
+
     public void parse(String message) {
         String[] arguments = message.split(" ");
 
-        //TODO: Make parseInts safe.
         switch(arguments[0]) {
             case SERVER_IDENTIFY:
-                System.out.println("[Client] Debug (TransactionHandler) - Identified client.");
-                sendJoinQueue(new int[]{2, 3});
+                view.print("[Client] Debug (TransactionHandler) - Identified client.");
+                joinQueue();
                 break;
             case SERVER_QUEUE:
-                System.out.println("[Client] Debug (TransactionHandler) - Successfully joined a queue.");
+                view.print("[Client] Debug (TransactionHandler) - Successfully joined a queue.");
                 break;
             case SERVER_ERROR:
                 int errorId = Integer.parseInt(arguments[1]);
@@ -103,17 +122,16 @@ public class TransactionHandler {
                     reason = reason + " " + arguments[i];
                 }
 
-                System.out.println("[Client] Debug (TransactionHandler) - Error (" + IProtocol.Error.values()[errorId] + ") -" + reason);
-                //disconnect(); TODO: Proper error handling.
+                if (errorId >= 5 && errorId <= 8 ) {
+                    view.print("[Client] Debug (TransactionHandler) - Error related to invalid move - Resetting tiles to old situation.");
+                    game.getPlayer().getHand().addAll(game.getPlayer().lastMove);
+                }
+
+                view.print("[Client] Debug (TransactionHandler) - Error (" + IProtocol.Error.values()[errorId] + ") -" + reason);
                 break;
             case SERVER_GAMESTART:
-                System.out.println("[Client] Debug (TransactionHandler) - Started a new game: " + message);
-                game = new ClientGame(new HumanPlayer(name)); // TODO: Games with AI player.
-                Block testBlock = new Block(30);
-                Point testPoint = new Point(0,0);
-                Map<Point, Block> move = new HashMap<>();
-                move.put(testPoint, testBlock);
-                sendMovePut(move);
+                view.print("[Client] Debug (TransactionHandler) - Started a new game: " + message);
+                game = new ClientGame(new HumanPlayer(name, view)); // TODO: Games with AI player.
                 break;
             case SERVER_GAMEEND:
                 game = null;
@@ -124,8 +142,8 @@ public class TransactionHandler {
                     scores += " " + arguments[i];
                 }
 
-                System.out.println("[Client] Debug (TransactionHandler) - The game ended because [" + endReason + "]. The scores are" + scores);
-                //TODO: Allow player to enter new queue(s).
+                view.print("[Client] Debug (TransactionHandler) - The game ended because [" + endReason + "]. The scores are" + scores);
+                joinQueue();
                 break;
             case SERVER_DRAWTILE:
                 game.drawTile(Arrays.copyOfRange(arguments, 1, arguments.length));
@@ -134,15 +152,15 @@ public class TransactionHandler {
                 game.doMove(Arrays.copyOfRange(arguments, 1, arguments.length));
                 break;
             case SERVER_TURN:
-                System.out.println(game.getBoard().toString());
                 if (arguments[1].equals(name)) {
-                    game.getPlayer().determineMove();
+                    System.out.println(game.getBoard().toString());
+                    sendRaw(game.getPlayer().determineMove());
                 } else {
-                    System.out.println("[Client] Debug (TransactionHandler) - " + arguments[1] + "'s turn started.");
+                    view.print("[Client] Debug (TransactionHandler) - " + arguments[1] + "'s turn started.");
                 }
                 break;
             default:
-                System.out.println("[Client] Debug (TransactionHandler) - Received: " + message);
+                view.print("[Client] Debug (TransactionHandler) - Received: " + message);
                 break;
         }
     }

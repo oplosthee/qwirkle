@@ -1,6 +1,8 @@
 package qwirkle.game;
 
+import qwirkle.client.ClientView;
 import qwirkle.server.ClientHandler;
+import qwirkle.server.exception.InvalidNameException;
 
 public class SocketPlayer extends Player {
 
@@ -11,8 +13,8 @@ public class SocketPlayer extends Player {
      *
      * @param name name for the Player
      */
-    public SocketPlayer(String name, ClientHandler client) {
-        super(name);
+    public SocketPlayer(String name, ClientHandler client, ClientView view) {
+        super(name, view);
         this.client = client;
     }
 
@@ -22,6 +24,6 @@ public class SocketPlayer extends Player {
 
     @Override
     public String determineMove() {
-        return "TODO!";
+        return "";
     }
 }
