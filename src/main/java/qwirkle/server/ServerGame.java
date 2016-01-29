@@ -67,8 +67,9 @@ public class ServerGame {
         } else {
             turn = (turn + 1) % players.size();
 
-            if(!board.isMovePossible(players.get(turn).getHand()) && (bag.getSize() == 0)) {
-                sendPlayerPass(); // If player can't make a move and the bag is empty, skip/pass turn.
+            if (!board.isMovePossible(players.get(turn).getHand()) && (bag.getSize() == 0)) {
+                sendPlayerPass();
+                // If player can't make a move and the bag is empty, skip/pass turn.
                 doTurn();
             }
 
@@ -89,7 +90,8 @@ public class ServerGame {
         }
     }
 
-    public void doMovePut(Map<Point, Block> move) throws InvalidMoveException, TilesUnownedException {
+    public void doMovePut(Map<Point, Block> move)
+            throws InvalidMoveException, TilesUnownedException {
         SocketPlayer player = players.get(turn);
         try {
 
@@ -129,7 +131,8 @@ public class ServerGame {
         doTurn();
     }
 
-    public void doMoveTrade(List<Block> blocks) throws TradeFirstTurnException, TilesUnownedException, EmptyBagException {
+    public void doMoveTrade(List<Block> blocks)
+            throws TradeFirstTurnException, TilesUnownedException, EmptyBagException {
         if (board.isEmpty()) {
             throw new TradeFirstTurnException();
         }

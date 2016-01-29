@@ -2,7 +2,7 @@ package qwirkle.client;
 
 import qwirkle.game.Block;
 import qwirkle.game.HumanPlayer;
-import qwirkle.game.Player;
+
 import qwirkle.shared.net.IProtocol;
 import qwirkle.util.ProtocolFormatter;
 
@@ -19,7 +19,6 @@ import static qwirkle.shared.net.IProtocol.*;
 
 public class TransactionHandler {
 
-    private Client client;
     private Socket socket;
     private String name;
     private BufferedReader reader;
@@ -30,7 +29,6 @@ public class TransactionHandler {
     private boolean connected;
 
     public TransactionHandler(Client client, Socket socket, ClientView view) throws IOException {
-        this.client = client;
         this.socket = socket;
         game = null;
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -47,8 +45,8 @@ public class TransactionHandler {
                 if (input != null) {
                     parse(input);
                 }
-            }catch (SocketException e) {
-                view.print("[Client] Debug (TransactionHandler) - Server disconnected. (SocketException)");
+            } catch (SocketException e) {
+                view.print("[Client] Server disconnected. (SocketException)");
                 disconnect();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -57,26 +55,13 @@ public class TransactionHandler {
         }
     }
 
-    public void sendQuit() {
-        sendRaw(IProtocol.CLIENT_QUIT);
-        disconnect();
-    }
-
-    public void sendIdentify(String name) {
-        this.name = name;
+    public void sendIdentify(String userName) {
+        name = userName;
         sendRaw(ProtocolFormatter.identify(name));
     }
 
     public void sendJoinQueue(int[] queues) {
         sendRaw(ProtocolFormatter.joinQueue(queues));
-    }
-
-    public void sendMovePut(Map<Point, Block> move) {
-        sendRaw(ProtocolFormatter.clientMovePut(move));
-    }
-
-    public void sendMoveTrade(List<Block> blocks) {
-        sendRaw(ProtocolFormatter.moveTrade(blocks));
     }
 
     public void sendRaw(String message) {
@@ -106,7 +91,7 @@ public class TransactionHandler {
     public void parse(String message) {
         String[] arguments = message.split(" ");
 
-        switch(arguments[0]) {
+        switch (arguments[0]) {
             case SERVER_IDENTIFY:
                 view.print("[Client] Debug (TransactionHandler) - Identified client.");
                 joinQueue();
@@ -123,11 +108,11 @@ public class TransactionHandler {
                 }
 
                 if (errorId >= 5 && errorId <= 8 ) {
-                    view.print("[Client] Debug (TransactionHandler) - Error related to invalid move - Resetting tiles to old situation.");
+                    view.print("[Client] Invalid move - Resetting tiles to old situation.");
                     game.getPlayer().getHand().addAll(game.getPlayer().lastMove);
                 }
 
-                view.print("[Client] Debug (TransactionHandler) - Error (" + IProtocol.Error.values()[errorId] + ") -" + reason);
+                view.print("[Client] Error(" + IProtocol.Error.values()[errorId] + ") -" + reason);
                 break;
             case SERVER_GAMESTART:
                 view.print("[Client] Debug (TransactionHandler) - Started a new game: " + message);
@@ -143,7 +128,7 @@ public class TransactionHandler {
                     scores += " " + arguments[i];
                 }
 
-                view.print("[Client] Debug (TransactionHandler) - The game ended because [" + endReason + "]. The scores are" + scores);
+                view.print("[Client] The game ended [" + endReason + "]. The scores are" + scores);
                 view.setBoard(null);
                 joinQueue();
                 break;
@@ -158,7 +143,7 @@ public class TransactionHandler {
                     System.out.println(game.getBoard().toString());
                     sendRaw(game.getPlayer().determineMove());
                 } else {
-                    view.print("[Client] Debug (TransactionHandler) - " + arguments[1] + "'s turn started.");
+                    view.print("[Client] " + arguments[1] + "'s turn started.");
                 }
                 break;
             default:

@@ -22,19 +22,20 @@ public class ClientPool {
         queues.put(4, new ArrayList<>());
     }
 
-    public void addClient(String name, ClientHandler client) throws InvalidNameException, UsedNameException {
+    public void addClient(String name, ClientHandler client)
+            throws InvalidNameException, UsedNameException {
         if (!name.matches(IProtocol.NAME_REGEX)) {
             throw new InvalidNameException();
         } else if (clients.containsKey(name)) {
             throw new UsedNameException();
         }
         clients.put(name, client);
-        System.out.println("[Server] Debug (ClientPool) - Added " + name + " to the client pool.");
+        System.out.println("[Server] Added " + name + " to the client pool.");
     }
 
     public void removeClient(String name) {
         clients.remove(name);
-        System.out.println("[Server] Debug (ClientPool) - Removed " + name + " from the client pool.");
+        System.out.println("[Server] Removed " + name + " from the client pool.");
     }
 
     public synchronized void checkQueue(int queue) {

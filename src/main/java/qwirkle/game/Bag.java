@@ -71,7 +71,7 @@ public class Bag {
     public List<Block> takeHand() {
         List<Block> hand = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
-            hand.add((takeRandomBlock()));
+            hand.add(takeRandomBlock());
         }
         return hand;
     }

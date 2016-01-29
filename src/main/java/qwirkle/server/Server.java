@@ -23,7 +23,7 @@ public class Server {
 
         try {
             socket = new ServerSocket(port);
-            System.out.println("[Server] Debug (Server) - Created new ServerSocket with port " + port);
+            System.out.println("[Server] Created new ServerSocket with port " + port);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,12 +49,6 @@ public class Server {
     public static void main(String[] args) {
         //Scanner input = new Scanner(System.in);
         String portNumber = "1024";
-
-        // Check if the String entered is between 0 and 65535 (so only valid port numbers can be entered).
-        //while (!portNumber.matches("^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$")) {
-        //    System.out.println(USAGE);
-        //    portNumber = input.next();
-        //}
 
         //TODO: Ask for new port number when it is in use (BindException).
         Server server = new Server(Integer.parseInt(portNumber));

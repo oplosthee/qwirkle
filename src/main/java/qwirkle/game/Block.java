@@ -36,7 +36,9 @@ public class Block {
     }
 
     public boolean isAllowedNeighbor(Block block) {
-        return block == null || (block.getColor().equals(getColor()) ^ block.getShape().equals(getShape()));
+        Color blockColor = block.getColor();
+        Shape blockShape = block.getShape();
+        return block == null || (blockColor.equals(getColor()) ^ blockShape.equals(getShape()));
     }
 
     @Override

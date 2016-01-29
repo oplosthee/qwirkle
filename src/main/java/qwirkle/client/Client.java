@@ -36,8 +36,9 @@ public class Client {
 
     public static void main(String[] args) {
         //Scanner input = new Scanner(System.in);
-        String portNumber = "1024";
+        int portNumber = Integer.parseInt("1024");
         String ipAddress = "127.0.0.1";
+        String name = "ClientName";
 
         //System.out.println("Enter port number:\n");
         //portNumber = input.next();
@@ -47,7 +48,7 @@ public class Client {
         Client client;
 
         try {
-            client = new Client(Integer.parseInt(portNumber), InetAddress.getByName(ipAddress), "ClientName");
+            client = new Client(portNumber, InetAddress.getByName(ipAddress), name);
             client.start();
         } catch (UnknownHostException e) {
             e.printStackTrace();

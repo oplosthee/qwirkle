@@ -5,7 +5,6 @@ import qwirkle.game.Board;
 import qwirkle.game.Player;
 
 import java.awt.*;
-import java.text.NumberFormat;
 
 public class ClientGame {
 

@@ -59,8 +59,8 @@ public class ClientHandler implements Runnable {
         sendRaw(ProtocolFormatter.endGame(won, scores));
     }
 
-    public void startGame(ServerGame game, List<SocketPlayer> players) {
-        this.game = game;
+    public void startGame(ServerGame serverGame, List<SocketPlayer> players) {
+        game = serverGame;
         sendRaw(ProtocolFormatter.startGame(players));
     }
 
@@ -98,7 +98,7 @@ public class ClientHandler implements Runnable {
             writer.newLine();
             writer.flush();
         } catch (SocketException e) {
-            System.out.println("[Server] Debug (ClientHandler) - Tried to send message to disconnected client.");
+            System.out.println("[Server] Tried to send message to disconnected client.");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -111,11 +111,11 @@ public class ClientHandler implements Runnable {
                     break;
                 }
 
-                String name = message[1];
+                String userName = message[1];
 
                 try {
                     pool.addClient(name, this);
-                    this.name = name;
+                    name = userName;
                     sendRaw(IProtocol.SERVER_IDENTIFY);
                 } catch (InvalidNameException e) {
                     sendError(IProtocol.Error.NAME_INVALID.ordinal() + " Invalid name");
@@ -151,7 +151,8 @@ public class ClientHandler implements Runnable {
                 if (message.length < 1) {
                     break;
                 } else if (game != null) {
-                    sendError(IProtocol.Error.ILLEGAL_STATE.ordinal() + " You cannot queue while you are in a game");
+                    sendError(IProtocol.Error.ILLEGAL_STATE.ordinal() +
+                            " You cannot queue while you are in a game");
                     break;
                 }
 
@@ -172,7 +173,8 @@ public class ClientHandler implements Runnable {
                 }
                 break;
             default:
-                sendRaw(String.valueOf(IProtocol.Error.INVALID_COMMAND.ordinal() + " The server does not recognise this command"));
+                sendRaw(String.valueOf(IProtocol.Error.INVALID_COMMAND.ordinal() +
+                        " The server does not recognise this command"));
                 break;
         }
 
@@ -198,7 +200,8 @@ public class ClientHandler implements Runnable {
             sendError(IProtocol.Error.MOVE_INVALID.ordinal() + " Invalid move");
             game.sendPlayerTurn();
         } catch (TilesUnownedException e) {
-            sendError(IProtocol.Error.MOVE_TILES_UNOWNED.ordinal() + " Player tried to place unowned tile");
+            sendError(IProtocol.Error.MOVE_TILES_UNOWNED.ordinal() +
+                    " Player tried to place unowned tile");
             game.sendPlayerTurn();
         } catch (NullPointerException e) {
             System.out.println("[Server] ClientHandler - Game ended during turn.");
@@ -215,13 +218,16 @@ public class ClientHandler implements Runnable {
         try {
             game.doMoveTrade(tradeBlocks);
         } catch (TradeFirstTurnException e) {
-            sendError(IProtocol.Error.TRADE_FIRST_TURN.ordinal() + " You cannot trade on the first turn");
+            sendError(IProtocol.Error.TRADE_FIRST_TURN.ordinal() +
+                    " You cannot trade on the first turn");
             game.sendPlayerTurn();
         } catch (TilesUnownedException e) {
-            sendError(IProtocol.Error.MOVE_TILES_UNOWNED.ordinal() + " Player tried to place unowned tile");
+            sendError(IProtocol.Error.MOVE_TILES_UNOWNED.ordinal() +
+                    " Player tried to place unowned tile");
             game.sendPlayerTurn();
         } catch (EmptyBagException e) {
-            sendError(IProtocol.Error.DECK_EMPTY.ordinal() + " The bag does not contain this many blocks");
+            sendError(IProtocol.Error.DECK_EMPTY.ordinal() +
+                    " The bag does not contain this many blocks");
             game.sendPlayerTurn();
         }
     }

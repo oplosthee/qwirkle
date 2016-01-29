@@ -75,7 +75,8 @@ public final class ProtocolFormatter implements IProtocol {
         for (Map.Entry<Point, Block> entry : move.entrySet()) {
             Block block = entry.getValue();
             Point point = entry.getKey();
-            message = MessageFormat.format("{0} {1}@{2},{3}", message, block.getCode(), point.x, point.y);
+            message =
+              MessageFormat.format("{0} {1}@{2},{3}", message, block.getCode(), point.x, point.y);
         }
 
         return message;

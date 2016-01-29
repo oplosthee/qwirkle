@@ -40,12 +40,12 @@ public class RobotPlayer extends Player {
                         return getMove(moveBlock, movePoint);
                     }
 
-                    Point point = new Point(x,y);
+                    Point point = new Point(x, y);
                     Map<Point, Block> move = new HashMap<>();
                     move.put(point, block);
                     if (getGame().getBoard().isValidMove(move)) {
                         int currentMoveScore = getGame().getBoard().getPoints(move);
-                        if (currentMoveScore > moveScore ) {
+                        if (currentMoveScore > moveScore) {
                             moveBlock = block;
                             movePoint = point;
                             moveScore = currentMoveScore;

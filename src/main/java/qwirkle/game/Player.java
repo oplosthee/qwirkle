@@ -23,7 +23,7 @@ public abstract class Player {
     private List<Block> hand;
     private ServerGame game;
     public ClientView view;
-    public List<Block> lastMove; // Stores the last move a player made, used to restore the player's hand when the move was invalid.
+    public List<Block> lastMove;
 
     /**
      * Constructs a new player, which sets the name, a new hand and sets the score on 0.

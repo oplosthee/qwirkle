@@ -57,7 +57,7 @@ public class Board extends Observable {
         for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
             board.put(entry.getKey(), entry.getValue());
         }
-        
+
         setChanged();
         notifyObservers();
     }
@@ -108,22 +108,26 @@ public class Board extends Observable {
             }
 
             // Check two blocks to the left.
-            if (boardCopy.get(new Point(point.x - 1, point.y)) != null && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x - 2, point.y)))) {
+            if (boardCopy.get(new Point(point.x - 1, point.y)) != null
+                    && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x - 2, point.y)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: Two to left ERROR.");
                 return false;
             }
             // Check two blocks above.
-            if (boardCopy.get(new Point(point.x, point.y + 1)) != null && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x, point.y + 2)))) {
+            if (boardCopy.get(new Point(point.x, point.y + 1)) != null
+                    && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x, point.y + 2)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: Two to top ERROR.");
                 return false;
             }
             // Check two blocks to the right.
-            if (boardCopy.get(new Point(point.x + 1, point.y)) != null && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x + 2, point.y)))) {
+            if (boardCopy.get(new Point(point.x + 1, point.y)) != null
+                    && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x + 2, point.y)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: Two to right ERROR.");
                 return false;
             }
             // Check two blocks below.
-            if (boardCopy.get(new Point(point.x, point.y - 1)) != null && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x, point.y - 2)))) {
+            if (boardCopy.get(new Point(point.x, point.y - 1)) != null
+                    && !block.isAllowedNeighbor(boardCopy.get(new Point(point.x, point.y - 2)))) {
                 System.out.println("Debug (Board) - isAllowedInLine: Two to bottom ERROR.");
                 return false;
             }
@@ -134,7 +138,6 @@ public class Board extends Observable {
             for (Map.Entry<Point, Block> lineEntry : horizontalLine.entrySet()) {
                 if (lineEntry.getValue().equals(block)) {
                     if (++occurrences > 1) {
-                        System.out.println("Debug (Board) - isAllowedInLine: Block already exists in horizontal line.");
                         return false;
                     }
                 }
@@ -145,7 +148,6 @@ public class Board extends Observable {
             for (Map.Entry<Point, Block> lineEntry : verticalLine.entrySet()) {
                 if (lineEntry.getValue().equals(block)) {
                     if (++occurrences > 1) {
-                        System.out.println("Debug (Board) - isAllowedInLine: Block already exists in vertical line.");
                         return false;
                     }
                 }
@@ -171,7 +173,6 @@ public class Board extends Observable {
                 .getKey();
 
         if (isHorizontal(blocks)) {
-            System.out.println("Debug (Board) - isLine: Started horizontal line check.");
 
             // Check whether all blocks of the move are in the horizontal line.
             for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
@@ -180,7 +181,6 @@ public class Board extends Observable {
                 }
             }
         } else if (isVertical(blocks)) {
-            System.out.println("Debug (Board) - isLine: Started vertical line check.");
 
             // Check whether all blocks of the move are in the horizontal line.
             for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
@@ -190,7 +190,6 @@ public class Board extends Observable {
             }
         } else {
             isLine = false;
-            System.out.println("Debug (Board) - isLine: Line is not vertical/horizontal.");
         }
 
         return isLine;
@@ -204,11 +203,13 @@ public class Board extends Observable {
 
         for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
             // Add the neighbor if it is not in the list already.
-            getNeighbors(entry.getKey(), boardCopy).stream().filter(neighbor -> !neighbors.contains(neighbor)).forEach(neighbors::add);
+            getNeighbors(entry.getKey(), boardCopy).stream().filter(neighbor ->
+                    !neighbors.contains(neighbor)).forEach(neighbors::add);
         }
 
         for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
-            neighbors.remove(entry.getValue()); // Remove the move from the neighbors, leaving only the blocks that touch the move.
+            // Remove the move from the neighbors, leaving only the blocks that touch the move.
+            neighbors.remove(entry.getValue());
         }
 
         return neighbors.size() != 0;

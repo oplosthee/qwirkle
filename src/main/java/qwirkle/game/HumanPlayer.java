@@ -53,7 +53,10 @@ public class HumanPlayer extends Player {
         Map<Point, Block> move = new HashMap<>();
 
         while (true) {
-            view.print("Enter what blocks you want to place in format 'BlockId@PositionX,PositionY'. Enter nothing when done placing a move.");
+            view.print(
+                    "Enter your move in format: 'BlockId@PositionX,PositionY'. " +
+                    "Enter nothing when done placing a move."
+            );
 
             String currentHand = "";
             for (Block block : getHand()) {
@@ -63,7 +66,8 @@ public class HumanPlayer extends Player {
 
             String currentMove = "";
             for (Map.Entry<Point, Block> entry : move.entrySet()) {
-                currentMove += "[" + entry.getValue().toString() + " (" + entry.getKey().x + "," + entry.getKey().y + ")]";
+                currentMove += "[" + entry.getValue().toString() +
+                        " (" + entry.getKey().x + "," + entry.getKey().y + ")]";
             }
             view.print("Current move: "+ currentMove);
 
@@ -100,7 +104,8 @@ public class HumanPlayer extends Player {
 
 
         while (true) {
-            view.print("Enter what blocks you want to place in format 'BlockId'. Enter nothing when done placing a move.");
+            view.print("Enter what blocks you want to place in format 'BlockId'." +
+                    " Enter nothing when done placing a move.");
 
             String currentHand = "";
             for (Block block : getHand()) {
