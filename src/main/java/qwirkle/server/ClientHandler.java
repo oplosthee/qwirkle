@@ -26,6 +26,12 @@ public class ClientHandler implements Runnable {
     private String name;
     private boolean connected;
 
+    /**
+     * Creates a new ClientHanlder
+     * @param client is a socket
+     * @param pool is a ClientPool
+     * @throws IOException if the input or output is not right.
+     */
     public ClientHandler(Socket client, ClientPool pool) throws IOException {
         this.client = client;
         this.pool = pool;
@@ -54,44 +60,86 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * ends the game
+     * @param won whether the game finished by a player winning or not
+     * @param scores is a map with integers and strings
+     */
     public void endGame(boolean won, Map<Integer, String> scores) {
         game = null;
         sendRaw(ProtocolFormatter.endGame(won, scores));
     }
 
+    /**
+     * starts a new game
+     * @param serverGame is a ServerGame
+     * @param players is a list with SocketPlayers
+     */
     public void startGame(ServerGame serverGame, List<SocketPlayer> players) {
         game = serverGame;
         sendRaw(ProtocolFormatter.startGame(players));
     }
 
+    /**
+     * sets the game
+     * @param game is a servergame
+     */
     public void setGame(ServerGame game) {
         this.game = game;
     }
 
+    /**
+     * sends a put move to the client
+     * @param move is a map with the points and blocks
+     */
     public void sendMovePut(Map<Point, Block> move) {
         sendRaw(ProtocolFormatter.serverMovePut(move));
     }
 
+    /**
+     * sends a trade move to the server
+     * @param amount is a int with how many
+     */
     public void sendMoveTrade(int amount) {
         sendRaw(IProtocol.SERVER_MOVE_TRADE + " " + amount);
     }
 
+    /**
+     * sends a turn to a player
+     * @param player is the name of the player
+     */
     public void sendTurn(String player) {
         sendRaw(IProtocol.SERVER_TURN + " " + player);
     }
 
+    /**
+     * sends a pass to a player
+     * @param player is the name of the player
+     */
     public void sendPass(String player) {
         sendRaw(IProtocol.SERVER_PASS + " " + player);
     }
 
+    /**
+     * sends a draw tile to the client
+     * @param tiles is a list with blocks
+     */
     public void sendDrawTile(List<Block> tiles) {
         sendRaw(ProtocolFormatter.drawTile(tiles));
     }
 
+    /**
+     * sends an error
+     * @param error is a string with the error
+     */
     public void sendError(String error) {
         sendRaw(IProtocol.SERVER_ERROR + " " + error);
     }
 
+    /**
+     * sends a raw message
+     * @param message is a string with the message
+     */
     public void sendRaw(String message) {
         try {
             writer.write(message);
@@ -104,6 +152,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * parses a message
+     * @param message is a String array
+     */
     public void parse(String[] message) {
         switch (message[0]) {
             case IProtocol.CLIENT_IDENTIFY:
@@ -180,6 +232,11 @@ public class ClientHandler implements Runnable {
 
     }
 
+    /**
+     * Handles the move put from a Client.
+     *
+     * @param params is a String array containing the blocks to place
+     */
     public void doMovePut(String[] params) {
         Map<Point, Block> moves = new HashMap<>();
 
@@ -208,6 +265,11 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Handles the trade  from a Client.
+     *
+     * @param params is a String array containing the blocks to trade
+     */
     public void doMoveTrade(String[] params) {
         List<Block> tradeBlocks = new ArrayList<>();
 
@@ -232,10 +294,18 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Returns the name of this ClientHandler
+     *
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Safely disconnects this ClientHandler from the Server
+     */
     public void disconnect() {
         try {
             pool.removeFromAllQueues(this);

@@ -22,6 +22,10 @@ public class ServerGame {
     private List<SocketPlayer> players;
     private int turn;
 
+    /**
+     * creates a new servergame
+     * @param clients is a list with clienthandlers
+     */
     public ServerGame(List<ClientHandler> clients) {
         board = new Board();
         bag = new Bag();
@@ -33,6 +37,9 @@ public class ServerGame {
 
     }
 
+    /**
+     * starts the servergame
+     */
     public void start() {
         // Send game start to all clients.
         for (SocketPlayer player : players) {
@@ -50,6 +57,10 @@ public class ServerGame {
         sendPlayerTurn();
     }
 
+    /**
+     * ends the servergame
+     * @param win is a boolean if you have won or not
+     */
     public void endGame(boolean win) {
         Map<Integer, String> scores = new HashMap<>();
         for (Player player : players) {
@@ -61,6 +72,9 @@ public class ServerGame {
         }
     }
 
+    /**
+     * Switch the turn to the next player if possible.
+     */
     public void doTurn() {
         if (isGameOver()) {
             endGame(true);
@@ -77,19 +91,31 @@ public class ServerGame {
         }
     }
 
-    // Inform the SocketPlayers whose turn it is.
+    /**
+     * Informs the SocketPlayers whose turn it is.
+     */
+    //
     public void sendPlayerTurn() {
         for (SocketPlayer socketPlayer : players) {
             socketPlayer.getClient().sendTurn(players.get(turn).getName());
         }
     }
 
+    /**
+     * Sends all SocketPlayers that a Player has passed.
+     */
     public void sendPlayerPass() {
         for (SocketPlayer socketPlayer : players) {
             socketPlayer.getClient().sendPass(players.get(turn).getName());
         }
     }
 
+    /**
+     * Does a put move
+     * @param move is a map with points and blocks
+     * @throws InvalidMoveException when an invalid move is tried to do
+     * @throws TilesUnownedException if a unowned tile is played
+     */
     public void doMovePut(Map<Point, Block> move)
             throws InvalidMoveException, TilesUnownedException {
         SocketPlayer player = players.get(turn);
@@ -131,6 +157,13 @@ public class ServerGame {
         doTurn();
     }
 
+    /**
+     * Does a trade move
+     * @param blocks is a list with blocks
+     * @throws TradeFirstTurnException if it is the first turn you can't trade tiles
+     * @throws TilesUnownedException if a unowned tile is played
+     * @throws EmptyBagException if there is an empty bag
+     */
     public void doMoveTrade(List<Block> blocks)
             throws TradeFirstTurnException, TilesUnownedException, EmptyBagException {
         if (board.isEmpty()) {
@@ -167,6 +200,10 @@ public class ServerGame {
         doTurn();
     }
 
+    /**
+     * checks if the game is over
+     * @return true if the game is over and false if not
+     */
     public boolean isGameOver() {
         for (SocketPlayer player : players) {
             if (board.isMovePossible(player.getHand())) {
@@ -183,10 +220,18 @@ public class ServerGame {
         return true;
     }
 
+    /**
+     * gets the client whose turn it is
+     * @return the clienthandler whose turn it is
+     */
     public ClientHandler getTurnClient() {
         return players.get(turn).getClient();
     }
 
+    /**
+     * returns the board
+     * @return the board
+     */
     public Board getBoard() {
         return board;
     }

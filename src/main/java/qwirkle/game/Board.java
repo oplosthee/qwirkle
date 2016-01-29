@@ -10,22 +10,39 @@ public class Board extends Observable {
 
     private Map<Point, Block> board;
 
+    /**
+     * Creates a new Board with a HashMap
+     */
     public Board() {
         board = new HashMap<>();
     }
 
+    /**
+     * it sets a block on a board and notifies the observers
+     * @param point this is a x and y coordinate
+     * @param block this is a block with a color and a shape
+     */
     public void setBlock(Point point, Block block) {
         board.put(point, block);
         setChanged();
         notifyObservers();
     }
 
+    /**
+     * sets multiple blocks in one move
+     * @param move is a map with a point and a block
+     */
     public void setBlock(Map<Point, Block> move) {
         for (Map.Entry<Point, Block> block : move.entrySet()) {
             setBlock(block.getKey(), block.getValue());
         }
     }
 
+    /**
+     * Returns true if a move is possible and returns false when a move is not possible
+     * @param blocks is list with blocks
+     * @return true  when a move is possible and false when not
+     */
     public boolean isMovePossible(List<Block> blocks) {
         if (board.size() == 0) {
             return true;
@@ -49,6 +66,11 @@ public class Board extends Observable {
         return false;
     }
 
+    /**
+     * places multiple block on a board
+     * @param blocks is map with points and blocks
+     * @throws InvalidMoveException if the move is invalid
+     */
     public void placeBlock(Map<Point, Block> blocks) throws InvalidMoveException {
         if (!isValidMove(blocks)) {
             throw new InvalidMoveException();
@@ -62,6 +84,11 @@ public class Board extends Observable {
         notifyObservers();
     }
 
+    /**
+     * Returns true if a move is valid and false when the move is not valid
+     * @param blocks is a map with point and blocks
+     * @return true if the move is valid and false when the move is not valid
+     */
     public boolean isValidMove(Map<Point, Block> blocks) {
         for (Map.Entry<Point, Block> entry : blocks.entrySet()) {
             if (board.get(entry.getKey()) != null) {
@@ -78,6 +105,11 @@ public class Board extends Observable {
         }
     }
 
+    /**
+     * checks if the blocks are allowed in the line
+     * @param blocks is map with points and blocks
+     * @return true if the blocks are allowed in a line en false if not
+     */
     public boolean isAllowedInLine(Map<Point, Block> blocks) {
         Map<Point, Block> boardCopy = new HashMap<>(board);
         boardCopy.putAll(blocks);
@@ -157,6 +189,11 @@ public class Board extends Observable {
         return true;
     }
 
+    /**
+     * checks if the blocks are in a line.
+     * @param blocks is map with points and blocks
+     * @return true if is in line en false when not
+     */
     public boolean isLine(Map<Point, Block> blocks) {
         if (blocks.size() == 1) {
             return true;
@@ -195,6 +232,11 @@ public class Board extends Observable {
         return isLine;
     }
 
+    /**
+     * checks if the blocks have neighbours
+     * @param blocks is a map with points and blocks
+     * @return true if the blocks has neighbours and false if not
+     */
     public boolean hasNeighbors(Map<Point, Block> blocks) {
         Map<Point, Block> boardCopy = new HashMap<>(board);
         boardCopy.putAll(blocks);
@@ -215,6 +257,12 @@ public class Board extends Observable {
         return neighbors.size() != 0;
     }
 
+    /**
+     * Returns the neighbours of a block
+     * @param point is a coordinate with x and y
+     * @param boardCopy is map with points and blocks
+     * @return a list with the neighbours of a block
+     */
     public List<Block> getNeighbors(Point point, Map<Point, Block> boardCopy) {
         List<Block> neighbors = new ArrayList<>();
 
@@ -239,6 +287,12 @@ public class Board extends Observable {
         return neighbors;
     }
 
+    /**
+     * returns the horizontal line
+     * @param point is coordinate with x and y
+     * @param boardCopy is a map with points and blocks
+     * @return a map with points and blocks
+     */
     public Map<Point, Block> getHorizontalLine(Point point, Map<Point, Block> boardCopy) {
         // A Map to store the horizontal line on which the move was on.
         Map<Point, Block> horizontalLine = new HashMap<>();
@@ -276,6 +330,12 @@ public class Board extends Observable {
         return horizontalLine;
     }
 
+    /**
+     * gets the vertical line of a block
+     * @param point is a coordinate with x and y
+     * @param boardCopy is a map with points and blocks
+     * @return a map with point and blocks
+     */
     public Map<Point, Block> getVerticalLine(Point point, Map<Point, Block> boardCopy) {
         // A Map to store the vertical line on which the move was on.
         Map<Point, Block> verticalLine = new HashMap<>();
@@ -313,6 +373,11 @@ public class Board extends Observable {
         return verticalLine;
     }
 
+    /**
+     * returns the points
+     * @param blocks is a map with points and blocks
+     * @return the points
+     */
     public int getPoints(Map<Point, Block> blocks) {
         List<Map<Point, Block>> lines = new ArrayList<>();
         int score = 0;
@@ -345,20 +410,38 @@ public class Board extends Observable {
         return score;
     }
 
+    /**
+     * checks if the blocks are horizontal
+     * @param blocks is a map with points and blocks
+     * @return true if it is horizontal and false if not
+     */
     public boolean isHorizontal(Map<Point, Block> blocks) {
         java.util.List<Point> points = new ArrayList<>(blocks.keySet());
         return points.get(0).y == points.get(1).y;
     }
 
+    /**
+     * checks if the blocks are vertical
+     * @param blocks is a map with points and blocks
+     * @return true if it is vertical and false if not
+     */
     public boolean isVertical(Map<Point, Block> blocks) {
         java.util.List<Point> points = new ArrayList<>(blocks.keySet());
         return points.get(0).x == points.get(1).x;
     }
 
+    /**
+     * checks if the board is empty
+     * @return true if the board is empty and false when not
+     */
     public boolean isEmpty() {
         return board.size() == 0;
     }
 
+    /**
+     * gives the boundaries
+     * @return an int array with the boundaries
+     */
     public int[] getBoundaries() {
         int[] boundaries = {0, 0, 0, 0};
         //[0]: lowX - [1]: lowY - [2]: highX - [3]: highY
